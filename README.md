@@ -72,3 +72,12 @@ Simple steps:
 Open items before steps 3-4 can be finalized: TauPOG's exact Run 3
 `correctionlib` recommendations (ID/ES/trigger SFs) and the trigger choice
 for a light-mass resonance.
+
+### Verify a sample is registered correctly
+
+```bash
+pico.py get samples -y 2024 -s Zprime*
+pico.py get files   -y 2024 -s Zprime*
+```
+The first confirms the sample entry is parsed; the second lists the actual
+`.root` files found at its `store=` path, confirming it can be read.
