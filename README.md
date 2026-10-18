@@ -84,3 +84,5 @@ pico.py get files   -y 2024 -s Zprime*
 
 The first confirms the sample entry is parsed; the second lists the actual
 `.root` files found at its `store=` path, confirming it can be read.
+
+pico.py run -c tautau -y 2024 -s Zprime\*
