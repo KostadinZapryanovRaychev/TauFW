@@ -3,6 +3,7 @@
 cd $CMSSW_BASE/src/
 cmsenv
 scram b -j8
+voms-proxy-init --voms cms --valid 192:00:00 --rfc
 
 ### PicoProducer
 
