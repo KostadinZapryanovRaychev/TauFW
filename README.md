@@ -37,11 +37,13 @@ git checkout v2.0.0 # for CMSSW_11_X only
 
 Simple steps:
 
-2. **Register the samples.** Add the private Z'(250) NanoAODSim signal
-   (`/eos/cms/store/user/mileva/bsm3g/RunIII2024Summer24/M250/`), the main
-   backgrounds (DY, ttbar, W+jets, QCD, diboson), and Run 3 data to
-   PicoProducer's sample list, with the known signal cross sections
-   (232.0 pb for M=250).
+2. **Register the samples.**
+   - Signal: Z'(250) NanoAODSim registered in `PicoProducer/samples/samples_2024.py`
+     as `Zprime/ZprimeToTauTau_M250`, pointing to
+     `/eos/cms/store/user/mileva/bsm3g/RunIII2024Summer24/M250/NANOAODSIM/`
+     (cross section 232.0 pb). Verified with `pico.py get files -y 2024 -s Zprime*`.
+   - Still to add: backgrounds (DY, ttbar, W+jets, QCD, diboson) and Run 3
+     data, same file, same way.
 
 3. **Define the tau_h tau_h selection in PicoProducer**, using the TauPOG
    Run-3 recommendation as the starting point: tau pt > 20 GeV, |eta| < 2.5,
@@ -79,5 +81,6 @@ for a light-mass resonance.
 pico.py get samples -y 2024 -s Zprime*
 pico.py get files   -y 2024 -s Zprime*
 ```
+
 The first confirms the sample entry is parsed; the second lists the actual
 `.root` files found at its `store=` path, confirming it can be read.
