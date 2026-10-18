@@ -799,7 +799,8 @@ def main_submit(args):
     script = batch.script
     if 'HTCondor' in batch.system:
       appcmds = ["initialdir=%s"%(jobdir),
-                 "mylogfile='log/%s.$(ClusterId).$(ProcId).log'"%(jobname)]
+                 "mylogfile='log/%s.$(ClusterId).$(ProcId).log'"%(jobname),
+                 "myclusterlog='log/%s.$(ClusterId).log'"%(jobname)]
       jkwargs.update({ 'app': appcmds })
     elif 'SLURM' in batch.system:
       logfile = os.path.join(logdir,"%x.%A.%a.log") # $JOBNAME.o$JOBID.$TASKID.log

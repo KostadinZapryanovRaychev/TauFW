@@ -94,23 +94,20 @@ pico.py run -c tautau -y 2024 -s Zprime\*
 missing from `PicoProducer/data/pileup/`:
 
 ```
-Data_PileUp_2024_69p2.root   # pileup profile from real 2024 data
-MC_PileUp_2024.root          # pileup profile from 2024 MC
+Data_PileUp_2024_69p2.root   # DONE - copied from the official Lumi POG
+                              # file dataPileupHistogram-2024BCDEFGHI_Golden-69200ub.root
+                              # (/eos/user/c/cmsdqm/www/CAF/certification/Collisions24/PileUp/),
+                              # verified to contain a TH1D named 'pileup'
+MC_PileUp_2024.root          # STILL MISSING - pileup profile from 2024 MC
 ```
 
-To create them:
+To create the remaining MC profile:
 
-1. Find the 2024 golden JSON and pileup JSON (same CAF area used for 2023,
-   swap `Collisions23` -> `Collisions24`):
-   - `/eos/user/c/cmsdqm/www/CAF/certification/Collisions24/...Golden.json`
-   - `/eos/user/c/cmsdqm/www/CAF/certification/Collisions24/PileUp/pileup_JSON.txt`
+1. ~~Find the 2024 golden JSON and pileup JSON~~ not needed - the Lumi POG
+   already provides the final data histogram directly, no need to run
+   `pileupCalc.py` ourselves.
 
-2. Data profile:
-   ```bash
-   cd $CMSSW_BASE/src/TauFW/PicoProducer/data/pileup
-   python3 getPileupProfiles.py -y 2024 -c pileup -t data \
-     --json <2024 golden JSON> --pileup <2024 pileup JSON> -v4
-   ```
+2. ~~Data profile~~ DONE (see above).
 
 3. MC profile (needs background MC registered and batch-processed first,
    signal alone is not representative):

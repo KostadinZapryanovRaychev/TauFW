@@ -5,7 +5,11 @@ executable            = python/batch/submit_HTCondor.sh
 arguments             = $(arg)
 initialdir            = output
 mylogfile             = log/job.$(ClusterId).$(ProcId).log
-log                   = $(mylogfile)
+myclusterlog          = log/job.$(ClusterId).log
+# NOTE: EosSubmit schedds reject a 'log' file whose name depends on $(ProcId)
+#       (only $(ClusterId) is allowed, since the log is per-cluster, not per-job):
+#       https://batchdocs.web.cern.ch/troubleshooting/eos.html#eos-submit-schedds
+log                   = $(myclusterlog)
 output                = $(mylogfile)
 error                 = $(mylogfile)
 should_transfer_files = no
