@@ -85,4 +85,53 @@ pico.py get files   -y 2024 -s Zprime*
 The first confirms the sample entry is parsed; the second lists the actual
 `.root` files found at its `store=` path, confirming it can be read.
 
+pico.py channel tautau ModuleTauTau
 pico.py run -c tautau -y 2024 -s Zprime\*
+
+### TODO: missing 2024 pileup profiles
+
+`pico.py run -c tautau -y 2024 ...` currently fails because two files are
+missing from `PicoProducer/data/pileup/`:
+
+```
+Data_PileUp_2024_69p2.root   # pileup profile from real 2024 data
+MC_PileUp_2024.root          # pileup profile from 2024 MC
+```
+
+To create them:
+
+1. Find the 2024 golden JSON and pileup JSON (same CAF area used for 2023,
+   swap `Collisions23` -> `Collisions24`):
+   - `/eos/user/c/cmsdqm/www/CAF/certification/Collisions24/...Golden.json`
+   - `/eos/user/c/cmsdqm/www/CAF/certification/Collisions24/PileUp/pileup_JSON.txt`
+
+2. Data profile:
+   ```bash
+   cd $CMSSW_BASE/src/TauFW/PicoProducer/data/pileup
+   python3 getPileupProfiles.py -y 2024 -c pileup -t data \
+     --json <2024 golden JSON> --pileup <2024 pileup JSON> -v4
+   ```
+
+3. MC profile (needs background MC registered and batch-processed first,
+   signal alone is not representative):
+   ```bash
+   pico.py channel pileup PileUp
+   pico.py submit -c pileup -y 2024 --dtype mc
+   pico.py hadd -c pileup -y 2024 --dtype mc --force
+   python3 getPileupProfiles.py -y 2024 -c pileup -t mc -i /eos/.../analysis/2024/*/*pileup.root
+   ```
+
+Blocked on: backgrounds not yet registered in `samples_2024.py` (step 2).
+
+**Why needed:** at each LHC bunch crossing, several proton-proton
+collisions happen at once ("pileup"), and how many varies randomly per
+event. MC simulation is generated with one assumed pileup distribution,
+but the real number of simultaneous collisions in actual 2024 data is
+different (and only known after the fact, from the luminosity/JSON info).
+If left uncorrected, simulated events would have the wrong mix of
+low-pileup vs high-pileup conditions compared to data, which biases
+jet/MET/isolation-dependent quantities (exactly the variables used in
+the tau selection and vetoes). The pileup tool reweights each MC event
+so its simulated pileup distribution matches the real one in 2024 data,
+using the ratio of these two profile histograms (`Data_PileUp_2024_*`
+vs `MC_PileUp_2024`) as a per-event correction factor.
