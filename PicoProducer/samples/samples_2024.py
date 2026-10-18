@@ -94,7 +94,7 @@ samples  = [
   # SIGNAL
   M('Zprime','ZprimeToTauTau_M250',
     "/ZprimeToTauTau_M250_TuneCP5_13p6TeV_pythia8/RunIII2024Summer24/NANOAODSIM",
-    store="/eos/cms/store/user/mileva/bsm3g/RunIII2024Summer24/M250",
+    store="/eos/cms/store/user/mileva/bsm3g/RunIII2024Summer24/M250/NANOAODSIM",
     url="root://eosuser.cern.ch/",opts=opts),
 
   # SINGLE MUON
