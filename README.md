@@ -8,29 +8,6 @@ scram b -j8
 
 (https://github.com/cms-nanoAOD/nanoAOD-tools):
 
-```
-cd $CMSSW_BASE/src/
-git clone https://github.com/cms-nanoAOD/nanoAOD-tools.git PhysicsTools/NanoAODTools
-scram b -j4
-```
-
-(https://github.com/cms-tau-pog/TauIDSFs):
-
-```
-cd $CMSSW_BASE/src/
-git clone https://github.com/cms-tau-pog/TauIDSFs TauPOG/TauIDSFs
-cmsenv
-scram b -j4
-```
-
-If you want to use the lepton SFs from the HTT group, please do
-
-```
-cd $CMSSW_BASE/src/TauFW/PicoProducer/data/lepton/
-rm -rf HTT
-git clone https://github.com/CMS-HTT/LeptonEfficiencies HTT
-```
-
 ### Combine
 
 If you want to use the `combine` tools in `Fitter`, install combine following the
@@ -55,27 +32,9 @@ scramv1 b clean; scramv1 b
 git checkout v2.0.0 # for CMSSW_11_X only
 ```
 
-### TauPOG corrections
-
-For TauPOG-internal work: To create JSON files with TauPOG corrections for
-[`correctionlib`](https://github.com/cms-nanoAOD/correctionlib),
-please follow the instructions
-[here](https://gitlab.cern.ch/cms-tau-pog/jsonpog-integration/-/blob/TauPOG_v2/POG/TAU/README4UPDATES.md).
-From at least `CMSSW_11_3_X`, `correctionlib` should be pre-installed.
-
-To create ROOT files including the measured SFs please install [`TauIDSFs` tool](https://github.com/cms-tau-pog/TauIDSFs).
-Modify the `TauIDSFs/utils/createSFFiles.py` script to include your measured SFs into the script.
-Finally, run the `TauFW/scripts/tau_createROOT.sh` to generate your ROOT files. They will be created into `TauFW/scripts/data/`
-IMPORTANT: please comment and do not delete older SFs
-
-The latest code used to create root files for SF can be taken from [here](https://github.com/saswatinandan/TauFW/blob/master/Fitter/createroot_TES.py)
-
 ## Analysis plan: Z' &rarr; tau tau (Run 3, hadronic channel)
 
 Simple steps:
-
-1. **Set up on lxplus.** Install a Run 3 CMSSW release and TauFW as described
-   above (`PicoProducer`, `NanoAODTools`, `TauIDSFs`).
 
 2. **Register the samples.** Add the private Z'(250) NanoAODSim signal
    (`/eos/cms/store/user/mileva/bsm3g/RunIII2024Summer24/M250/`), the main
