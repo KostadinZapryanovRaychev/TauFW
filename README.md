@@ -132,3 +132,7 @@ the tau selection and vetoes). The pileup tool reweights each MC event
 so its simulated pileup distribution matches the real one in 2024 data,
 using the ratio of these two profile histograms (`Data_PileUp_2024_*`
 vs `MC_PileUp_2024`) as a per-event correction factor.
+
+pico.py status -c pileup -y 2024
+
+pico.py hadd -c pileup -y 2024 --dtype mc --force
