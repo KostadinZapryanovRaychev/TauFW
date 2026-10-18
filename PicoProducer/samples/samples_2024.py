@@ -91,6 +91,12 @@ samples  = [
     "/ZZ_TuneCP5_13p6TeV_pythia8/Run3Winter24NanoAOD-JMENanoV14_133X_mcRun3_2024_realistic_v10-v2/NANOAODSIM",
     store=storage,url=url,files=filelist,opts=opts),
 
+  # SIGNAL
+  M('Zprime','ZprimeToTauTau_M250',
+    "/ZprimeToTauTau_M250_TuneCP5_13p6TeV_pythia8/RunIII2024Summer24/NANOAODSIM",
+    store="/eos/cms/store/user/mileva/bsm3g/RunIII2024Summer24/M250",
+    url="root://eosuser.cern.ch/",opts=opts),
+
   # SINGLE MUON
   # D('Data','Muon0_Run2024A',"/Muon0/Run2024A-PromptReco-v1/NANOAOD",
   #   store=storage,url=url,files=filelist,opts=opts,channels=["skim*",'mutau','mumu','emu','mumutau','mumettau']),
