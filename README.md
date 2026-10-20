@@ -47,19 +47,21 @@ Simple steps:
      with `pico.py get files -y 2024 -s DY*` (and similar).
    - Still missing: Run 3 data samples (same file, same way, once needed).
 
-3. **Define the tau_h tau_h selection in PicoProducer**, using the TauPOG
-   Run-3 recommendation as the starting point: tau pt > 20 GeV, |eta| < 2.5,
-   |dz| < 0.2, a DeepTau/PNet/UParT VSjet working point, opposite-sign pair,
-   well-separated in DeltaR (as checked already in the Coffea prototype).
-   Pick the trigger(s) appropriate for a 250 GeV resonance.
+3. **Define the tau_h tau_h selection in PicoProducer** - IN PROGRESS.
+   `ModuleTauTau.py` now runs end-to-end on the signal sample for 2024
+   (see milestone below), using DeepTau2018v2p5 branches and the draft
+   ditau trigger. Still using old Run-2 cut values as placeholders
+   (`tauCutPt=40`, `tauwp=1`) - not yet tuned to an actual Run-3 POG
+   recommendation (pt > 20 GeV, |eta| < 2.5, |dz| < 0.2, a specific
+   DeepTau/PNet/UParT VSjet working point).
 
-4. **Apply the official corrections** once available: tau ID SFs, tau energy
-   scale, lepton-to-tau fake rate, and trigger SFs from the TauPOG
-   `correctionlib` JSONs, wired into the PicoProducer processing step.
+4. **Apply the official corrections** - file found, loading works, but
+   the actual `.evaluate()` calls are still TODO placeholders
+   (weight=1). See the correctionlib section below.
 
-5. **Produce pico ntuples** for signal, backgrounds, and data with
-   PicoProducer, run locally on a small signal file first to validate the
-   output before submitting full batch jobs.
+5. **Produce pico ntuples** for signal - FIRST LOCAL TEST DONE (see
+   milestone below). Backgrounds and data not yet run; full batch
+   production not started.
 
 6. **Analyze and plot with Plotter**: build the visible/di-tau mass
    distribution, validate background modeling in control regions (DY,
@@ -76,6 +78,50 @@ Simple steps:
 Open items before steps 3-4 can be finalized: TauPOG's exact Run 3
 `correctionlib` recommendations (ID/ES/trigger SFs) and the trigger choice
 for a light-mass resonance.
+
+### MILESTONE - first full local run on signal works (2026-10-20)
+
+`pico.py run -c tautau -y 2024 -s Zprime*` ran to completion over all
+345,524 signal events and wrote
+`output/pico_tautau_2024_ZprimeToTauTau_M250.root`:
+```
+trigger:    18.33% pass
++ tau:      16.36% pass (89.27% relative)
++ ditau pair: 8.61% pass (52.63% relative) -> 29,760 events stored
+```
+Every blocker hit along the way this session (proxy, HTCondor/EosSubmit
+batch issues, missing 2024 pileup files, missing 2024 trigger JSON,
+Run-2-only correction tools, a bug in the official TauPOG JSON, several
+Run-3-renamed/dropped NanoAOD branches) is now actually cleared in a
+working run, not just patched around.
+
+**Caveat - pipeline works, physics numbers don't mean much yet:**
+selection cuts are still Run-2 defaults (not Run-3 tuned, step 3), all
+correction weights are placeholder 1.0 (step 4 not wired up), and the
+jet ID cut is bypassed. Don't use these yields/plots for anything
+quantitative yet.
+
+### Next steps, in order
+
+1. Run the backgrounds (DY, TT, WJ, ST, VV) through the same
+   `pico.py run -c tautau -y 2024 -s <pattern>` command, one at a time,
+   to confirm they work too (they come from a different NanoAOD
+   campaign than the signal - `Run3Winter24NanoAOD-JMENanoV14` vs
+   `RunIII2024Summer24NanoAODv15` - so branch-availability issues like
+   today's may differ per sample and need re-checking).
+2. Tune the actual selection cuts in `ModuleTauTau.py` to a real Run-3
+   POG recommendation (tau pt, eta, dz, DeepTau2018v2p5VSjet working
+   point) instead of the current Run-2 placeholders - needs the POG
+   recommendation doc, not a guess.
+3. Confirm the exact `genmatch`/working-point argument convention for
+   the `correctionlib` `.evaluate()` calls (ID SF, VSe/VSmu fake rate,
+   trigger SF, tau energy scale) against an official TauPOG usage
+   example, then fill them in (currently weight=1 placeholders).
+4. Properly compute Jet ID for Run 3 from the available energy-fraction
+   branches (today's bypass is a stopgap), and wire in the 2024 jet
+   veto map (`jetveto()` currently skips 2024 entirely).
+5. Once 2-4 are done, re-run signal + backgrounds, then move to step 6
+   (Plotter: build the ditau mass distribution, control regions).
 
 ### Verify a sample is registered correctly
 
