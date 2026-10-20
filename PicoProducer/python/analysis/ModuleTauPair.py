@@ -313,7 +313,16 @@ class ModuleTauPair(Module):
       if abs(jet.eta)>4.7: continue
       if jet.DeltaR(tau1)<0.5: continue
       if jet.DeltaR(tau2)<0.5: continue
-      if jet.jetId<2: continue # Tight
+      # TODO: Jet_jetId branch is missing from this private Run-3 NanoAOD
+      # production (confirmed absent via Events->Print("Jet_*") on the
+      # signal file) - bypassing the Tight jet ID cut until the official
+      # JME Jet ID formula is sourced and computed from the available
+      # energy-fraction branches (chHEF, neHEF, chEmEF, neEmEF, muEF,
+      # chMultiplicity, neMultiplicity, nConstituents) instead.
+      try:
+        if jet.jetId<2: continue # Tight
+      except RuntimeError:
+        pass
       
       # SAVE JEC VARIATIONS
       if self.dojec:

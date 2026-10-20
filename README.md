@@ -188,6 +188,37 @@ selection to match was mandatory, not optional.
 Next: confirm the correction input conventions, then fill in the
 `.evaluate()` calls.
 
+### Shared-code (ModuleTauPair.py) Run-3 fixes along the way
+
+Running `pico.py run -c tautau -y 2024 -s Zprime*` surfaced more issues
+in the shared base module (used by all channels, not just tautau):
+
+- `getlepvetoes()` was missing the `era` argument in the two
+  `ModuleTauTau.py` call sites - the function itself already had
+  era-aware branch names (2022/2023+ variants), it just wasn't being
+  passed through. Fixed.
+- Several legacy Tau ID branches don't exist in Run-3 NanoAOD:
+  `Tau_idAntiEle` (dropped, role covered by DeepTau VSe, no
+  substitute), `Tau_idDecayMode` (renamed to `idDecayModeOldDMs`, same
+  meaning), `Tau_idMVAoldDM2017v2`/`idMVAnewDM2017v2` (old MVA iso ID
+  fully retired, no substitute). Confirmed via
+  `Events->Print("Tau_id*")`. Defaulted the no-substitute ones to -1
+  for year>=2022, remapped idDecayMode to its renamed equivalent.
+- `Jet_jetId` is missing entirely from this private NanoAOD production
+  (confirmed via `Events->Print("Jet_*")` - all the raw energy-fraction
+  ingredients to compute it manually are present, just not the
+  precomputed flag). Decision: bypassed the Tight jet ID cut for now
+  (try/except around the one crash site in `fillJetBranches`), flagged
+  with a TODO to compute it properly from the official JME formula
+  before trusting jet/b-tag-based quantities.
+- Side finding, not yet fixed: `jetveto()` (Run-3 jet veto maps) only
+  activates for `'2022'`/`'2023'` eras, not `'2024'`, even though the
+  jet veto map ROOT file for 2024
+  (`data/jetveto/Winter24Prompt24_2024BCDEFGHI.root`) is already
+  present in the repo. Not blocking the current test run (the function
+  just returns 0 early for 2024), but should be wired in before trusting
+  results that depend on jet veto maps.
+
 ### BUG in the official TauPOG file - found, patched locally, reported
 
 Loading the official CVMFS file crashed `correctionlib` with
