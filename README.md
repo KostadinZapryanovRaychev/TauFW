@@ -104,3 +104,96 @@ and are now both in `PicoProducer/data/pileup/`:
 
 With both in place, `pico.py run -c tautau -y 2024 -s Zprime*` no longer
 crashes on a missing-file error.
+
+### BLOCKED: 2024 ditau trigger definitions missing
+
+Next crash in the same command: `data/trigger/tau_triggers_2024.json`
+does not exist. Only 2016/2017/2018 (Run 2) trigger JSONs exist in this
+TauFW checkout - nothing for Run 3 yet.
+
+This file is not a simple reference copy like the pileup files - it
+lists the actual HLT ditau trigger path names for that year plus the
+NanoAOD `TrigObj` filter-bit mapping needed to match offline taus to
+the trigger object that fired. Getting this wrong silently breaks (or
+wrongly passes) the trigger requirement, so it needs the real official
+Run-3 2024 ditau trigger recommendation, not a guess.
+
+**DRAFT created** (`data/trigger/tau_triggers_2024.json`), built from the
+real 2024 NanoAODv15 MC branch list, not guessed from scratch:
+- Trigger path: `HLT_DoubleMediumDeepTauPFTauHPS35_L2NN_eta2p1` - found by
+  listing `HLT_*` branches in the actual signal file's NanoAOD content;
+  it's the direct Run-3 successor of the Run-2 path already used in
+  `tau_triggers_2018.json` (same 35 GeV threshold, "Medium" WP, same
+  eta2p1 acceptance, old ChargedIso tau ID swapped for the newer DeepTau).
+- Filter bit: `TrigObj_filterBits` bit 11 = "di-tau" for the Tau object,
+  read directly from the NanoAODv15 autoDoc page.
+
+Still unverified (flagged in the file's own `_DRAFT_NOTE`): the offline
+`ptmin` cut (guessed as threshold+5 GeV, following the Run-2 pattern)
+and the cosmetic HLT filter name string (not used by the matching logic
+itself). Cross-check this draft against the official TauPOG Run-3
+trigger recommendation before trusting any resulting numbers.
+
+## References & sources - how each step was built, and why
+
+**Signal sample.** Path and cross section (232.0 pb for M=250) came
+from the supervisor's own production notes (CodiMD page), where the
+private Z'(250) Run-3 NanoAODSim was generated and placed on eos.
+Motivation: this is the actual signal we're searching for, so it has to
+come from the specific private production, not a central dataset.
+
+**Background samples.** Already present in `samples/samples_2024.py`
+from earlier TauFW work, resolving via official central DAS (Run3
+Winter24NanoAOD campaign). Motivation: standard SM backgrounds (DY,
+ttbar, W+jets, single-top, diboson) that mimic the ditau signature and
+need to be subtracted/modeled, following the same approach as the
+Run-2 Z'->2tau analysis (CADI EXO-21-016).
+
+**2024 data pileup profile** (`Data_PileUp_2024_69p2.root`). Copied
+directly from the official CMS Luminosity POG certification area:
+`/eos/user/c/cmsdqm/www/CAF/certification/Collisions24/PileUp/
+dataPileupHistogram-2024BCDEFGHI_Golden-69200ub.root`. This is the
+standard, POG-maintained source for "how busy was 2024 data" - using
+the full-run ("BCDEFGHI") Golden JSON version with the standard 69.2 mb
+minbias cross section, matching the eras covered by the registered
+`Tau_Run2024*` data samples. Motivation: required to reweight MC to
+match real collision conditions (see the longer pileup explanation
+above).
+
+**2024 MC pileup profile** (`MC_PileUp_2024.root`). Built in-house (no
+official equivalent exists for a private sample mix): ran the
+`pileup` channel over every registered 2024 background MC sample and
+summed their simulated `Pileup_nTrueInt` distributions, following the
+exact recipe documented inside TauFW itself
+(`PicoProducer/python/analysis/PileUp.py` header comment and
+`data/pileup/getPileupProfiles.py`). Signal was deliberately excluded,
+since the MC profile should represent the background mix being
+reweighted to match data, not the resonance being searched for.
+
+**2024 ditau trigger JSON** (`data/trigger/tau_triggers_2024.json`,
+still DRAFT). Built from:
+- The official NanoAOD "autoDoc" branch documentation
+  (`https://cms-xpog.docs.cern.ch/autoDoc/`), NanoAODv15, 2024 MC -
+  this is where `TrigObj_filterBits` bit 11 ("di-tau" for the Tau
+  object) came from, and where the full list of `HLT_*` branches was
+  read to find `HLT_DoubleMediumDeepTauPFTauHPS35_L2NN_eta2p1`.
+- Comparison against TauFW's own existing Run-2 file
+  (`tau_triggers_2018.json`) to infer the expected JSON structure and
+  the pattern for the still-unconfirmed `ptmin` (offline cut =
+  online threshold + 5 GeV).
+
+Motivation: without trigger information, `ModuleTauTau` cannot check
+whether an event was actually recorded by a ditau trigger, or confirm
+a reconstructed tau pair matches the object that caused the trigger to
+fire - this is a required, not optional, part of the per-event
+selection (see `ModuleTauTau.py`, the `self.trigger.fired(event)`
+check right after the "no cut" stage).
+
+**Still pending, needs the official TauPOG source** (per your
+supervisor's CodiMD notes, under "Tau analysis - run 3 data and
+documentation" / "Tau ID recommendations for Run-3: 2022-2024"):
+- Confirmation (or correction) of the draft ditau trigger choice above.
+- The `correctionlib` JSON files for tau ID SFs, tau momentum scale,
+  lepton->tau fake rate, and trigger SFs (step 4 of the plan).
+- The exact tau ID working point recommendation (DeepTau vs PNet vs
+  UParT) to use for the selection (step 3).

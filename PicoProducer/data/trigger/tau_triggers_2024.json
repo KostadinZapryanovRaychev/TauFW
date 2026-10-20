@@ -1,0 +1,66 @@
+{
+  "year": 2024,
+  "_DRAFT_NOTE": "Built from the 2024 NanoAODv15 MC autoDoc (TrigObj_filterBits for Tau) and the HLT branch list of the Z'(250) signal sample. ptmin is a guess following the Run-2 pattern (offline cut = online threshold + 5 GeV) and the exact HLT filter name string is a placeholder (not used by TrigObjMatcher's matching logic, only for documentation). NOT YET CONFIRMED against official TauPOG Run-3 trigger recommendations - cross-check before using for real results.",
+  "filterbits": {
+    "Tau": {
+      "Loose": 1,
+      "Medium": 2,
+      "Tight": 4,
+      "DeepTau": 8,
+      "PNet": 16,
+      "ChargedIso": 32,
+      "Dxy": 64,
+      "ETauInside": 128,
+      "MuTauInside": 256,
+      "SingleTau": 512,
+      "VBFDiTau": 1024,
+      "DiTau": 2048,
+      "ETau": 4096,
+      "MuTau": 8192,
+      "DiTauPFJet": 16384,
+      "ETauDisplaced": 32768,
+      "MuTauDisplaced": 65536,
+      "DiTauDisplaced": 131072,
+      "Monitoring": 262144,
+      "VBFSingleTauMonitoring": 524288,
+      "DiTauPFJetMonitoring": 1048576,
+      "MonitoringMuTauDisplaced": 2097152,
+      "OneProng": 4194304,
+      "DiTauMonitoring": 8388608,
+      "OverlapFilter": 16777216,
+      "VBFDiTauMonitoring": 33554432,
+      "SingleTauMonitoring": 67108864,
+      "MatchL1HLT": 134217728,
+      "Hps": 268435456,
+      "SinglePFTauInsideFilter": 536870912,
+      "VBFSingleTau": 1073741824
+    }
+  },
+  "hltcombs": {
+    "data": {
+      "ditau": [
+        "HLT_DoubleMediumDeepTauPFTauHPS35_L2NN_eta2p1"
+      ]
+    },
+    "mc": {
+      "ditau": [
+        "HLT_DoubleMediumDeepTauPFTauHPS35_L2NN_eta2p1"
+      ]
+    }
+  },
+  "hltpaths": {
+    "HLT_DoubleMediumDeepTauPFTauHPS35_L2NN_eta2p1": {
+      "filter": "TODO_confirm_exact_hlt_filter_name",
+      "Tau": {
+        "ptmin": 40,
+        "etamax": 2.1,
+        "filterbits": [
+          "Medium",
+          "DeepTau",
+          "Hps",
+          "DiTau"
+        ]
+      }
+    }
+  }
+}
