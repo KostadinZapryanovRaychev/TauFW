@@ -153,9 +153,37 @@ correctionlib JSON files are available at CAT webpage" - tau ID SFs,
 tau momentum SFs, lepton->tau fake rate SFs, lepton+tau and di-tau
 trigger SFs).
 
-**Genuinely paused here** - this needs the actual TauPOG Run-3
-`correctionlib` JSON files, not a workaround. This is step 4 of the
-plan.
+**UPDATE - correctionlib file found and reachable.** Found via
+https://cms-analysis-corrections.docs.cern.ch/corrections/TAU/, era
+`Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15` (matches the
+signal campaign and registered data eras). File `tau.json.gz` lives on
+CVMFS, confirmed reachable:
+```
+/cvmfs/cms-griddata.cern.ch/cat/metadata/TAU/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/2026-01-14/tau.json.gz
+```
+It's built for `DeepTau2018v2p5`, not `DeepTau2017v2p1`. Confirmed via
+`root -l <signal file>` + `Events->Print("Tau_idDeepTau*")` /
+`"Tau_rawDeepTau*"` that the signal NanoAODv15 file **only** has
+`DeepTau2018v2p5` branches (no `2017v2p1` at all) - so switching the
+selection to match was mandatory, not optional.
+
+`ModuleTauTau.py` updated:
+- Selection now reads `idDeepTau2018v2p5*`/`rawDeepTau2018v2p5*`
+  branches for year >= 2022 (2017v2p1 for Run 2, unchanged).
+- `correctionlib.CorrectionSet` loaded from the file above for 2024.
+- Output tree branches still use their old `*2017v2p1*` names for now
+  (not renamed - shared file, bigger change, deferred) but for
+  year >= 2022 they hold `DeepTau2018v2p5` values.
+- **Not yet wired up:** the actual `.evaluate()` calls for the 4
+  scale-factor corrections (ID, VSe/VSmu fake rate, trigger) and the
+  tau energy scale - their exact `genmatch`/working-point argument
+  convention needs confirming against an official TauPOG usage example
+  first (the CAT docs describe `genmatch` as grouped categories, not
+  simply the raw NanoAOD value). Left as neutral weight=1 placeholders
+  with clear TODO comments rather than guessed.
+
+Next: confirm the correction input conventions, then fill in the
+`.evaluate()` calls.
 
 ## References & sources - how each step was built, and why
 
