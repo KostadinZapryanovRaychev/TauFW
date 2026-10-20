@@ -84,11 +84,13 @@ for a light-mass resonance.
 `pico.py run -c tautau -y 2024 -s Zprime*` ran to completion over all
 345,524 signal events and wrote
 `output/pico_tautau_2024_ZprimeToTauTau_M250.root`:
+
 ```
 trigger:    18.33% pass
 + tau:      16.36% pass (89.27% relative)
 + ditau pair: 8.61% pass (52.63% relative) -> 29,760 events stored
 ```
+
 Every blocker hit along the way this session (proxy, HTCondor/EosSubmit
 batch issues, missing 2024 pileup files, missing 2024 trigger JSON,
 Run-2-only correction tools, a bug in the official TauPOG JSON, several
@@ -122,6 +124,44 @@ quantitative yet.
    veto map (`jetveto()` currently skips 2024 entirely).
 5. Once 2-4 are done, re-run signal + backgrounds, then move to step 6
    (Plotter: build the ditau mass distribution, control regions).
+
+### Running backgrounds through the pipeline - DONE (one-file correctness check)
+
+Fixed one more bug hit while starting this: `ModuleTauTau.py` crashed
+on DY with `AssertionError: Did not find cut 'weight_mutaufilter'`.
+Cause: the shared `domutau` option (DY->mutau genfilter stitching, a
+mutau-channel-specific technique) auto-enables for any DY sample
+regardless of channel, but this tautau module never registers the
+cutflow bins that feature needs. Fixed by forcing `domutau=False` in
+`ModuleTauTau.py`'s `__init__` (irrelevant to tautau anyway).
+
+`pico.py run -c tautau -y 2024 -s DY*` then succeeded on
+`DYto2L-4Jets_MLL-50` (37/143468 events passed, 0.03% - much lower than
+signal's 8.6%, as expected for inclusive DY+jets vs. a 35 GeV ditau
+trigger).
+
+**Important caveat to not forget, same as with the pileup jobs earlier
+in this doc:** a local `pico.py run` only grabs **one file** per
+sample by default, as a quick correctness check - not the full
+sample statistics. It also looked like only one of DY's 5 registered
+sub-samples (`DYto2L-4Jets_MLL-50`, not the `_1J/_2J/_3J/_4J` jet
+bins) actually ran from a single `-s DY*` call - needs re-checking.
+
+**Still to run** (one file each, as a correctness check, same as DY):
+
+- [x] DY jet bins: `_1J`, `_2J`, `_3J`, `_4J` - DONE, all ran fine when
+      named explicitly (`-s DYto2L-4Jets_MLL-50_1J ..._2J ..._3J
+..._4J`); `-s DY*` only matching one sub-sample earlier was a
+      shell-glob quirk in that terminal, not a pico.py bug.
+- [x] TT (`TTto2L2Nu` 264 pass, `TTtoLNu2Q` 148 pass) - DONE
+- [x] WJ (`WtoLNu-4Jets` + `_1J/_2J/_3J/_4J`) - DONE
+- [x] ST (`TWminusto2L2Nu` 178, `TWminustoLNu2Q` 92, `TbarWplusto2L2Nu` 177, `TbarWplustoLNu2Q` 104 pass) - DONE
+- [x] VV (`WW`, `WZ`, `ZZ` 58 pass) - DONE
+
+**Before any final/trustworthy results:** every sample above needs a
+full **batch submission** (`pico.py submit`, not just `pico.py run`)
+so ALL of its files get processed, not just the first one used for
+this correctness check.
 
 ### Verify a sample is registered correctly
 
