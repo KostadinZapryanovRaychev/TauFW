@@ -37,13 +37,15 @@ git checkout v2.0.0 # for CMSSW_11_X only
 
 Simple steps:
 
-2. **Register the samples.**
+2. **Register the samples.** DONE.
    - Signal: Z'(250) NanoAODSim registered in `PicoProducer/samples/samples_2024.py`
      as `Zprime/ZprimeToTauTau_M250`, pointing to
      `/eos/cms/store/user/mileva/bsm3g/RunIII2024Summer24/M250/NANOAODSIM/`
      (cross section 232.0 pb). Verified with `pico.py get files -y 2024 -s Zprime*`.
-   - Still to add: backgrounds (DY, ttbar, W+jets, QCD, diboson) and Run 3
-     data, same file, same way.
+   - Backgrounds (DY, ttbar, W+jets, single-top, diboson) were already
+     present in `samples_2024.py`, resolving via official DAS. Verified
+     with `pico.py get files -y 2024 -s DY*` (and similar).
+   - Still missing: Run 3 data samples (same file, same way, once needed).
 
 3. **Define the tau_h tau_h selection in PicoProducer**, using the TauPOG
    Run-3 recommendation as the starting point: tau pt > 20 GeV, |eta| < 2.5,
@@ -88,51 +90,17 @@ The first confirms the sample entry is parsed; the second lists the actual
 pico.py channel tautau ModuleTauTau
 pico.py run -c tautau -y 2024 -s Zprime\*
 
-### TODO: missing 2024 pileup profiles
+### 2024 pileup profiles - DONE
 
-`pico.py run -c tautau -y 2024 ...` currently fails because two files are
-missing from `PicoProducer/data/pileup/`:
+TauFW needs to know how busy real 2024 collisions were ("pileup") so it
+can make simulated MC events match it. Two reference files were missing
+and are now both in `PicoProducer/data/pileup/`:
 
-```
-Data_PileUp_2024_69p2.root   # DONE - copied from the official Lumi POG
-                              # file dataPileupHistogram-2024BCDEFGHI_Golden-69200ub.root
-                              # (/eos/user/c/cmsdqm/www/CAF/certification/Collisions24/PileUp/),
-                              # verified to contain a TH1D named 'pileup'
-MC_PileUp_2024.root          # STILL MISSING - pileup profile from 2024 MC
-```
+- `Data_PileUp_2024_69p2.root` - copied directly from the official Lumi
+  POG file (`dataPileupHistogram-2024BCDEFGHI_Golden-69200ub.root`).
+- `MC_PileUp_2024.root` - built by running a small "pileup" job over all
+  registered 2024 background MC samples (DY, TT, WJ, ST, VV; signal
+  excluded on purpose) and summing their `Pileup_nTrueInt` histograms.
 
-To create the remaining MC profile:
-
-1. ~~Find the 2024 golden JSON and pileup JSON~~ not needed - the Lumi POG
-   already provides the final data histogram directly, no need to run
-   `pileupCalc.py` ourselves.
-
-2. ~~Data profile~~ DONE (see above).
-
-3. MC profile (needs background MC registered and batch-processed first,
-   signal alone is not representative):
-   ```bash
-   pico.py channel pileup PileUp
-   pico.py submit -c pileup -y 2024 --dtype mc
-   pico.py hadd -c pileup -y 2024 --dtype mc --force
-   python3 getPileupProfiles.py -y 2024 -c pileup -t mc -i /eos/.../analysis/2024/*/*pileup.root
-   ```
-
-Blocked on: backgrounds not yet registered in `samples_2024.py` (step 2).
-
-**Why needed:** at each LHC bunch crossing, several proton-proton
-collisions happen at once ("pileup"), and how many varies randomly per
-event. MC simulation is generated with one assumed pileup distribution,
-but the real number of simultaneous collisions in actual 2024 data is
-different (and only known after the fact, from the luminosity/JSON info).
-If left uncorrected, simulated events would have the wrong mix of
-low-pileup vs high-pileup conditions compared to data, which biases
-jet/MET/isolation-dependent quantities (exactly the variables used in
-the tau selection and vetoes). The pileup tool reweights each MC event
-so its simulated pileup distribution matches the real one in 2024 data,
-using the ratio of these two profile histograms (`Data_PileUp_2024_*`
-vs `MC_PileUp_2024`) as a per-event correction factor.
-
-pico.py status -c pileup -y 2024
-
-pico.py hadd -c pileup -y 2024 --dtype mc --force
+With both in place, `pico.py run -c tautau -y 2024 -s Zprime*` no longer
+crashes on a missing-file error.
