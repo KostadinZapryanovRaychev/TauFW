@@ -23,7 +23,12 @@ TAU_JSON_2024 = os.path.join(datadir,"tau/tau_2024_patched.json.gz")
 class ModuleTauTau(ModuleTauPair):
   
   def __init__(self, fname, **kwargs):
-    kwargs['channel'] = 'mutau'
+    kwargs['channel'] = 'mutau' # TODO: this looks like a copy-paste leftover from a mutau module (see also file header comment) - should likely be 'tautau'; not changed here since self.channel feeds other shared logic (e.g. getlepvetoes) and needs a careful review, not a quick swap.
+    # domutau (DY->mutau genfilter stitching) is mutau-channel-specific and irrelevant
+    # here; the shared default heuristic ('DY' in fname or dozpt) turns it on for any
+    # DY sample regardless of channel, which crashes since this module never
+    # registers the 'weight_mutaufilter*' cutflow bins ModuleMuTau does.
+    kwargs.setdefault('domutau', False)
     super(ModuleTauTau,self).__init__(fname,**kwargs)
     self.out = TreeProducerTauTau(fname,self)
     
