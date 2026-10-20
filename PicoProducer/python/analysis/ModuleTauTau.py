@@ -14,7 +14,10 @@ import correctionlib
 # Run-3 2024: TauPOG correctionlib file (DeepTau2018v2p5-based), replaces the
 # Run-2-only ROOT-based tools above for this year.
 # https://cms-analysis-corrections.docs.cern.ch/corrections/TAU/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/
-TAU_JSON_2024 = "/cvmfs/cms-griddata.cern.ch/cat/metadata/TAU/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/2026-01-14/tau.json.gz"
+# NOTE: the official CVMFS file fails to load with correctionlib (bad JSON:
+# "+inf" serialized as a string instead of a number, see data/tau/README.md
+# for details) - using a locally patched copy until TauPOG fixes it upstream.
+TAU_JSON_2024 = os.path.join(datadir,"tau/tau_2024_patched.json.gz")
 
 
 class ModuleTauTau(ModuleTauPair):

@@ -158,9 +158,11 @@ https://cms-analysis-corrections.docs.cern.ch/corrections/TAU/, era
 `Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15` (matches the
 signal campaign and registered data eras). File `tau.json.gz` lives on
 CVMFS, confirmed reachable:
+
 ```
 /cvmfs/cms-griddata.cern.ch/cat/metadata/TAU/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/2026-01-14/tau.json.gz
 ```
+
 It's built for `DeepTau2018v2p5`, not `DeepTau2017v2p1`. Confirmed via
 `root -l <signal file>` + `Events->Print("Tau_idDeepTau*")` /
 `"Tau_rawDeepTau*"` that the signal NanoAODv15 file **only** has
@@ -168,6 +170,7 @@ It's built for `DeepTau2018v2p5`, not `DeepTau2017v2p1`. Confirmed via
 selection to match was mandatory, not optional.
 
 `ModuleTauTau.py` updated:
+
 - Selection now reads `idDeepTau2018v2p5*`/`rawDeepTau2018v2p5*`
   branches for year >= 2022 (2017v2p1 for Run 2, unchanged).
 - `correctionlib.CorrectionSet` loaded from the file above for 2024.
@@ -184,6 +187,25 @@ selection to match was mandatory, not optional.
 
 Next: confirm the correction input conventions, then fill in the
 `.evaluate()` calls.
+
+### BUG in the official TauPOG file - found, patched locally, reported
+
+Loading the official CVMFS file crashed `correctionlib` with
+`RuntimeError: Invalid edges array type`. Downloaded a local copy and
+inspected it directly: the `tau_trigger` correction's upper pt-binning
+edge is serialized as the **string** `"+inf"` in 270 places, instead of
+a proper JSON number - a bug in the file itself (reproduced identically
+with both correctionlib 2.5.0 on lxplus and 2.7.0 locally), not a
+version mismatch.
+
+Fix: patched a local copy (`"+inf"` -> `1e20`, an effectively-unbounded
+upper pt edge), verified it loads and evaluates correctly
+(`tau_trigger.evaluate(40.0, 0, 'ditau', 'Medium', 'sf', 'nom') =
+0.916`). Saved as `PicoProducer/data/tau/tau_2024_patched.json.gz`
+(see `data/tau/README.md` for the full bug writeup), and
+`ModuleTauTau.py` now points there instead of the CVMFS path, until
+TauPOG fixes the official file (should be reported upstream via the
+GitLab MR `!2` mentioned on the docs page).
 
 ## References & sources - how each step was built, and why
 
@@ -250,5 +272,3 @@ documentation" / "Tau ID recommendations for Run-3: 2022-2024"):
   lepton->tau fake rate, and trigger SFs (step 4 of the plan).
 - The exact tau ID working point recommendation (DeepTau vs PNet vs
   UParT) to use for the selection (step 3).
-
-/cvmfs/cms-griddata.cern.ch/cat/metadata/TAU/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/2026-01-14/tau.json.gz
