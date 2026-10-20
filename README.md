@@ -120,6 +120,7 @@ Run-3 2024 ditau trigger recommendation, not a guess.
 
 **DRAFT created** (`data/trigger/tau_triggers_2024.json`), built from the
 real 2024 NanoAODv15 MC branch list, not guessed from scratch:
+
 - Trigger path: `HLT_DoubleMediumDeepTauPFTauHPS35_L2NN_eta2p1` - found by
   listing `HLT_*` branches in the actual signal file's NanoAOD content;
   it's the direct Run-3 successor of the Run-2 path already used in
@@ -194,6 +195,7 @@ reweighted to match data, not the resonance being searched for.
 
 **2024 ditau trigger JSON** (`data/trigger/tau_triggers_2024.json`,
 still DRAFT). Built from:
+
 - The official NanoAOD "autoDoc" branch documentation
   (`https://cms-xpog.docs.cern.ch/autoDoc/`), NanoAODv15, 2024 MC -
   this is where `TrigObj_filterBits` bit 11 ("di-tau" for the Tau
@@ -214,8 +216,11 @@ check right after the "no cut" stage).
 **Still pending, needs the official TauPOG source** (per your
 supervisor's CodiMD notes, under "Tau analysis - run 3 data and
 documentation" / "Tau ID recommendations for Run-3: 2022-2024"):
+
 - Confirmation (or correction) of the draft ditau trigger choice above.
 - The `correctionlib` JSON files for tau ID SFs, tau momentum scale,
   lepton->tau fake rate, and trigger SFs (step 4 of the plan).
 - The exact tau ID working point recommendation (DeepTau vs PNet vs
   UParT) to use for the selection (step 3).
+
+/cvmfs/cms-griddata.cern.ch/cat/metadata/TAU/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/2026-01-14/tau.json.gz
