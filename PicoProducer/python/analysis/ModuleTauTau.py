@@ -189,12 +189,16 @@ class ModuleTauTau(ModuleTauPair):
     self.out.rawDeepTau2017v2p1VSe_1[0]    = getattr(tau1,'rawDeepTau%sVSe' %self.tauIDversion)
     self.out.rawDeepTau2017v2p1VSmu_1[0]   = getattr(tau1,'rawDeepTau%sVSmu'%self.tauIDversion)
     self.out.rawDeepTau2017v2p1VSjet_1[0]  = tau1.rawVSjet
-    self.out.idAntiEle_1[0]                = tau1.idAntiEle
+    # NOTE: Run-3 NanoAOD dropped Tau_idAntiEle (no substitute, role
+    # covered by DeepTau VSe), Tau_idDecayMode (-> idDecayModeOldDMs,
+    # same meaning), and both idMVAoldDM2017v2/idMVAnewDM2017v2 (no
+    # substitute, old MVA iso ID fully retired) - defaulted to -1.
+    self.out.idAntiEle_1[0]                = tau1.idAntiEle if self.year<2022 else -1
     self.out.idAntiMu_1[0]                 = tau1.idAntiMu
-    self.out.idDecayMode_1[0]              = tau1.idDecayMode
+    self.out.idDecayMode_1[0]              = tau1.idDecayMode if self.year<2022 else tau1.idDecayModeOldDMs
     self.out.idDecayModeNewDMs_1[0]        = tau1.idDecayModeNewDMs
-    self.out.idMVAoldDM2017v2_1[0]         = tau1.idMVAoldDM2017v2
-    self.out.idMVAnewDM2017v2_1[0]         = tau1.idMVAnewDM2017v2
+    self.out.idMVAoldDM2017v2_1[0]         = tau1.idMVAoldDM2017v2 if self.year<2022 else -1
+    self.out.idMVAnewDM2017v2_1[0]         = tau1.idMVAnewDM2017v2 if self.year<2022 else -1
     self.out.idDeepTau2017v2p1VSe_1[0]     = getattr(tau1,'idDeepTau%sVSe'  %self.tauIDversion)
     self.out.idDeepTau2017v2p1VSmu_1[0]    = getattr(tau1,'idDeepTau%sVSmu' %self.tauIDversion)
     self.out.idDeepTau2017v2p1VSjet_1[0]   = getattr(tau1,'idDeepTau%sVSjet'%self.tauIDversion)
@@ -220,12 +224,12 @@ class ModuleTauTau(ModuleTauPair):
     self.out.rawDeepTau2017v2p1VSe_2[0]    = getattr(tau2,'rawDeepTau%sVSe' %self.tauIDversion)
     self.out.rawDeepTau2017v2p1VSmu_2[0]   = getattr(tau2,'rawDeepTau%sVSmu'%self.tauIDversion)
     self.out.rawDeepTau2017v2p1VSjet_2[0]  = tau2.rawVSjet
-    self.out.idAntiEle_2[0]                = tau2.idAntiEle
+    self.out.idAntiEle_2[0]                = tau2.idAntiEle if self.year<2022 else -1
     self.out.idAntiMu_2[0]                 = tau2.idAntiMu
-    self.out.idDecayMode_2[0]              = tau2.idDecayMode
+    self.out.idDecayMode_2[0]              = tau2.idDecayMode if self.year<2022 else tau2.idDecayModeOldDMs
     self.out.idDecayModeNewDMs_2[0]        = tau2.idDecayModeNewDMs
-    self.out.idMVAoldDM2017v2_2[0]         = tau2.idMVAoldDM2017v2
-    self.out.idMVAnewDM2017v2_2[0]         = tau2.idMVAnewDM2017v2
+    self.out.idMVAoldDM2017v2_2[0]         = tau2.idMVAoldDM2017v2 if self.year<2022 else -1
+    self.out.idMVAnewDM2017v2_2[0]         = tau2.idMVAnewDM2017v2 if self.year<2022 else -1
     self.out.idDeepTau2017v2p1VSe_2[0]     = getattr(tau2,'idDeepTau%sVSe'  %self.tauIDversion)
     self.out.idDeepTau2017v2p1VSmu_2[0]    = getattr(tau2,'idDeepTau%sVSmu' %self.tauIDversion)
     self.out.idDeepTau2017v2p1VSjet_2[0]   = getattr(tau2,'idDeepTau%sVSjet'%self.tauIDversion)
