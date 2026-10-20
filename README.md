@@ -134,6 +134,28 @@ and the cosmetic HLT filter name string (not used by the matching logic
 itself). Cross-check this draft against the official TauPOG Run-3
 trigger recommendation before trusting any resulting numbers.
 
+The draft trigger JSON loads fine - `pico.py run -c tautau -y 2024 -s
+Zprime*` got past it with no crash.
+
+### BLOCKED (real step-4 blocker): tau trigger/ID SF tools are Run-2 only
+
+Next crash in the same command: `TauTriggerSFs.py` hard-codes
+`years = [2016,2017,2018]` and explicitly refuses 2024. This is not a
+missing file - it's a Run-2-only tool (reads old-style ROOT histograms
+like `tauTriggerEfficiencies2018.root`). `ModuleTauTau.py` would hit the
+same wall right after for `TauIDSFTool` (tau ID SFs), for the same
+reason.
+
+TauPOG's Run-3 corrections use a different format entirely:
+`correctionlib` JSON files (per the supervisor's notes: "The
+correctionlib JSON files are available at CAT webpage" - tau ID SFs,
+tau momentum SFs, lepton->tau fake rate SFs, lepton+tau and di-tau
+trigger SFs).
+
+**Genuinely paused here** - this needs the actual TauPOG Run-3
+`correctionlib` JSON files, not a workaround. This is step 4 of the
+plan.
+
 ## References & sources - how each step was built, and why
 
 **Signal sample.** Path and cross section (232.0 pb for M=250) came
