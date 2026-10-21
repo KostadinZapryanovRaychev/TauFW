@@ -372,6 +372,19 @@ inherited from how loose the baseline preselection already was, to be
 refined later once working points across selection and corrections are
 all explicitly re-examined together.
 
+**Bug found on first test run, fixed:** crashed with
+`RuntimeError: Index below bounds in Binning for input argument 0
+value: 21.721864` - the `tau_trigger` correction's pt binning only
+covers `[24.59953, inf)` (per this file's own CAT docs page, read the
+day before), since the trigger itself needs ~35 GeV online and the SF
+simply isn't measured below ~24.6 GeV. Our new Run-3 baseline cut
+(pt>20, a general POG kinematic recommendation) is independent of this
+specific trigger's actual threshold, so a subleading tau at ~21.7 GeV
+passed selection but fell outside what the trigger SF can answer.
+Fixed by clamping the pt passed to `trigCorr.evaluate()` at the
+binning's documented floor (24.6 GeV) - standard practice for a value
+just below a measured range's edge.
+
 ## References & sources - how each step was built, and why
 
 **Signal sample.** Path and cross section (232.0 pb for M=250) came

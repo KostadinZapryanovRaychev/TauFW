@@ -318,14 +318,20 @@ class ModuleTauTau(ModuleTauPair):
         # VVLoose, VSmu Loose) mirror the Run-2 defaults above and match the
         # selection's own WP (tauwp=5=Medium); 'flag'='dm' uses the
         # decay-mode-binned VSjet SF, as recommended for pT<=140 GeV.
-        self.out.trigweight[0]       = self.trigCorr.evaluate(tau1.pt,tau1.decayMode,'ditau','Medium','sf','nom') \
-                                      * self.trigCorr.evaluate(tau2.pt,tau2.decayMode,'ditau','Medium','sf','nom')
+        # tau_trigger's pt binning only covers [24.59953, inf) (per this
+        # file's CAT docs page) - clamp below that, since a tau below the
+        # trigger's near-threshold region has no measured SF and this file's
+        # binning raises instead of auto-clamping ("flow" not set to clamp).
+        trigpt1 = max(tau1.pt,24.6)
+        trigpt2 = max(tau2.pt,24.6)
+        self.out.trigweight[0]       = self.trigCorr.evaluate(trigpt1,tau1.decayMode,'ditau','Medium','sf','nom') \
+                                      * self.trigCorr.evaluate(trigpt2,tau2.decayMode,'ditau','Medium','sf','nom')
         self.out.trigweight_tight[0] = self.out.trigweight[0] # no separate Tight trigger WP in this file
         if self.dosys:
-          self.out.trigweightUp[0]   = self.trigCorr.evaluate(tau1.pt,tau1.decayMode,'ditau','Medium','sf','up')   \
-                                      * self.trigCorr.evaluate(tau2.pt,tau2.decayMode,'ditau','Medium','sf','up')
-          self.out.trigweightDown[0] = self.trigCorr.evaluate(tau1.pt,tau1.decayMode,'ditau','Medium','sf','down') \
-                                      * self.trigCorr.evaluate(tau2.pt,tau2.decayMode,'ditau','Medium','sf','down')
+          self.out.trigweightUp[0]   = self.trigCorr.evaluate(trigpt1,tau1.decayMode,'ditau','Medium','sf','up')   \
+                                      * self.trigCorr.evaluate(trigpt2,tau2.decayMode,'ditau','Medium','sf','up')
+          self.out.trigweightDown[0] = self.trigCorr.evaluate(trigpt1,tau1.decayMode,'ditau','Medium','sf','down') \
+                                      * self.trigCorr.evaluate(trigpt2,tau2.decayMode,'ditau','Medium','sf','down')
 
         for tau, sfx in [(tau1,'_1'),(tau2,'_2')]:
           genmatch = tau.genPartFlav
