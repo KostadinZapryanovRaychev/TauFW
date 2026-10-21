@@ -337,6 +337,7 @@ exact `genmatch` input convention (the CAT docs page's listed "Values"
 for each correction node looked like grouped categories, not obviously
 the raw NanoAOD value) and the precise argument order per correction.
 Searched for an official TauPOG usage example:
+
 - A direct fetch of the TauPOG's own `jsonpog-integration` GitLab repo
   (where an `examples/tauExample.py` is referenced from the README) was
   blocked by GitLab's bot-protection (Anubis).
@@ -347,9 +348,9 @@ Searched for an official TauPOG usage example:
   correctionlib file family) - confirms `genmatch` is passed as the
   **raw NanoAOD `Tau_genPartFlav` value, unmodified**, and gives the
   argument order for VSjet/VSe/VSmu/TES: `eval({pt, dm, genmatch, wp,
-  wp_vse, syst, flag})` for VSjet, `eval({eta, genmatch, wp, syst})`
+wp_vse, syst, flag})` for VSjet, `eval({eta, genmatch, wp, syst})`
   for VSe/VSmu, `eval({pt, eta, dm, genmatch, id, syst})` for TES.
-- Combined this confirmed *convention* with the exact *input signature*
+- Combined this confirmed _convention_ with the exact _input signature_
   of our own Run-3 2024 file's correction nodes (already captured
   verbatim from the CAT docs page the day before - see the "BLOCKED"
   section above) to write the final calls.
@@ -366,7 +367,7 @@ standard simplified approach for a ditau trigger.
 
 **Known approximation, not yet resolved:** the SF/fake-rate working
 points passed to `correctionlib` (e.g. VSe='VVLoose') don't necessarily
-exactly match the *actual* cut applied in the selection loop (`idVSe<1`
+exactly match the _actual_ cut applied in the selection loop (`idVSe<1`
 is close to a no-op, not a clean "VVLoose" cut) - a minor inconsistency
 inherited from how loose the baseline preselection already was, to be
 refined later once working points across selection and corrections are
@@ -460,3 +461,20 @@ documentation" / "Tau ID recommendations for Run-3: 2022-2024"):
   UParT) to use for the selection (step 3).
 
 Today's work made the pipeline technically compatible with 2024 (Run-3) data format and runnable end-to-end on signal and all backgrounds, but not yet physically accurate - selection cuts and correction weights still need tuning to real Run-3 values before the output resembles actual 2024 data.
+
+### SESSION UPDATE 2026-10-21 - steps 2 and 3 done and verified
+
+Picked up today's "Next steps" list: tuned the selection cuts to the
+real Run-3 POG recommendation (step 2) and wired up the actual
+`correctionlib` scale-factor weights (step 3) - both DONE and verified
+with real numbers, not just "doesn't crash" (see the dedicated
+sections above for the full writeup, sources, and bugs found/fixed
+along the way: a trigger-SF pt-binning out-of-range crash, and a
+pre-existing `ltfweight_1` default-value typo).
+
+Stopping here for today at the user's request. **Remaining for next
+session:** step 4 (properly compute Jet ID for Run 3 instead of the
+current bypass, and wire in the 2024 jet veto map), then re-run
+signal + all backgrounds with the updated cuts/corrections as a
+one-file correctness check (same pattern as yesterday), before moving
+to full batch production and Plotter.
