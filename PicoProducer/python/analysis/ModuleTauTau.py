@@ -124,11 +124,24 @@ class ModuleTauTau(ModuleTauPair):
         tau.es   = 1 # store energy scale for propagating to MET
         genmatch = tau.genPartFlav
         if self.year>=2022:
-          # TODO: confirm exact 'genmatch' input convention for tesCorr.evaluate()
-          # against an official TauPOG usage example before trusting these numbers;
-          # the CAT doc describes it as grouped categories, not necessarily the raw
-          # NanoAOD genPartFlav value. Left as a no-op (es=1) until confirmed.
-          pass
+          # genmatch is passed as the raw NanoAOD Tau_genPartFlav value,
+          # unmodified - confirmed against the cms-tau-pog nanoaod-base-analysis
+          # production framework's tauCorrections.py, which does exactly this
+          # (no remapping) for the equivalent Run-2 corrections.
+          # tau_energy_scale only defines values for genmatch in [1,2,5,6]
+          # (per this file's own CAT docs page); apply es=1 (no-op) for the
+          # other genmatch values (0,3,4), same as the current default.
+          if self.tes!=None and genmatch==5: # user-defined energy scale (for TES studies)
+            tes = self.tes
+          elif genmatch in [1,2,5,6]:
+            syst = 'up' if self.tessys=='Up' else ('down' if self.tessys=='Down' else 'nom')
+            tes = self.tesCorr.evaluate(tau.pt,tau.eta,tau.decayMode,genmatch,'DeepTau2018v2p5','Medium','VVLoose',syst)
+          else:
+            tes = 1
+          if tes!=1:
+            tau.pt   *= tes
+            tau.mass *= tes
+            tau.es    = tes
         elif genmatch==5: # real tau
           if self.tes!=None: # user-defined energy scale (for TES studies)
             tes = self.tes
@@ -286,7 +299,7 @@ class ModuleTauTau(ModuleTauPair):
       self.out.idweight_2[0]        = 1.
       self.out.idweight_tight_1[0]  = 1.
       self.out.idweight_tight_2[0]  = 1.
-      self.out.ltfweight_2[0]       = 1.
+      self.out.ltfweight_1[0]       = 1. # was a duplicate 'ltfweight_2' line (pre-existing typo), fixed
       self.out.ltfweight_2[0]       = 1.
       if self.dosys:
         self.out.idweightUp_1[0]    = 1.
@@ -299,17 +312,40 @@ class ModuleTauTau(ModuleTauPair):
         self.out.ltfweightDown_2[0] = 1.
 
       if self.year>=2022:
-        # TODO (step 4, Run 3): wire up correctionlib evaluate() calls here
-        # (self.trigCorr, self.idSFCorr, self.eleSFCorr, self.muSFCorr) once
-        # the exact input argument convention (esp. 'genmatch' and working
-        # point strings) is confirmed against an official TauPOG usage
-        # example. Left as neutral weight=1 (set above) for now, rather than
-        # risk applying an incorrectly-mapped correction silently.
-        self.out.trigweight[0]       = 1.
-        self.out.trigweight_tight[0] = 1.
+        # Run-3 correctionlib weights. genmatch = raw Tau_genPartFlav (no
+        # remapping), confirmed against the cms-tau-pog nanoaod-base-analysis
+        # production framework. WP choices here (VSjet Medium/Tight, VSe
+        # VVLoose, VSmu Loose) mirror the Run-2 defaults above and match the
+        # selection's own WP (tauwp=5=Medium); 'flag'='dm' uses the
+        # decay-mode-binned VSjet SF, as recommended for pT<=140 GeV.
+        self.out.trigweight[0]       = self.trigCorr.evaluate(tau1.pt,tau1.decayMode,'ditau','Medium','sf','nom') \
+                                      * self.trigCorr.evaluate(tau2.pt,tau2.decayMode,'ditau','Medium','sf','nom')
+        self.out.trigweight_tight[0] = self.out.trigweight[0] # no separate Tight trigger WP in this file
         if self.dosys:
-          self.out.trigweightUp[0]   = 1.
-          self.out.trigweightDown[0] = 1.
+          self.out.trigweightUp[0]   = self.trigCorr.evaluate(tau1.pt,tau1.decayMode,'ditau','Medium','sf','up')   \
+                                      * self.trigCorr.evaluate(tau2.pt,tau2.decayMode,'ditau','Medium','sf','up')
+          self.out.trigweightDown[0] = self.trigCorr.evaluate(tau1.pt,tau1.decayMode,'ditau','Medium','sf','down') \
+                                      * self.trigCorr.evaluate(tau2.pt,tau2.decayMode,'ditau','Medium','sf','down')
+
+        for tau, sfx in [(tau1,'_1'),(tau2,'_2')]:
+          genmatch = tau.genPartFlav
+          if genmatch==5: # real tau: ID scale factor
+            getattr(self.out,'idweight'+sfx)[0]       = self.idSFCorr.evaluate(tau.pt,tau.decayMode,genmatch,'Medium','VVLoose','nom','dm')
+            getattr(self.out,'idweight_tight'+sfx)[0] = self.idSFCorr.evaluate(tau.pt,tau.decayMode,genmatch,'Tight', 'VVLoose','nom','dm')
+            if self.dosys:
+              getattr(self.out,'idweightUp'+sfx)[0]   = self.idSFCorr.evaluate(tau.pt,tau.decayMode,genmatch,'Medium','VVLoose','up',  'dm')
+              getattr(self.out,'idweightDown'+sfx)[0] = self.idSFCorr.evaluate(tau.pt,tau.decayMode,genmatch,'Medium','VVLoose','down','dm')
+          elif genmatch>0: # lepton -> tau fake rate SF
+            if genmatch in [1,3]: # electron fake
+              getattr(self.out,'ltfweight'+sfx)[0]     = self.eleSFCorr.evaluate(tau.eta,tau.decayMode,genmatch,'VVLoose','nom')
+              if self.dosys:
+                getattr(self.out,'ltfweightUp'+sfx)[0]   = self.eleSFCorr.evaluate(tau.eta,tau.decayMode,genmatch,'VVLoose','up')
+                getattr(self.out,'ltfweightDown'+sfx)[0] = self.eleSFCorr.evaluate(tau.eta,tau.decayMode,genmatch,'VVLoose','down')
+            else: # muon fake
+              getattr(self.out,'ltfweight'+sfx)[0]     = self.muSFCorr.evaluate(tau.eta,genmatch,'Loose','VVLoose','Medium','nom')
+              if self.dosys:
+                getattr(self.out,'ltfweightUp'+sfx)[0]   = self.muSFCorr.evaluate(tau.eta,genmatch,'Loose','VVLoose','Medium','up')
+                getattr(self.out,'ltfweightDown'+sfx)[0] = self.muSFCorr.evaluate(tau.eta,genmatch,'Loose','VVLoose','Medium','down')
       else:
         self.out.trigweight[0]             = self.trigTool.getSFPair(tau1,tau2)
         self.out.trigweight_tight[0]       = self.trigTool_tight.getSFPair(tau1,tau2)

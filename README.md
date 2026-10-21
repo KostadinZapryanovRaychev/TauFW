@@ -105,20 +105,21 @@ quantitative yet.
 
 ### Next steps, in order
 
-1. Run the backgrounds (DY, TT, WJ, ST, VV) through the same
-   `pico.py run -c tautau -y 2024 -s <pattern>` command, one at a time,
-   to confirm they work too (they come from a different NanoAOD
-   campaign than the signal - `Run3Winter24NanoAOD-JMENanoV14` vs
-   `RunIII2024Summer24NanoAODv15` - so branch-availability issues like
-   today's may differ per sample and need re-checking).
+1. Run the backgrounds (DY, TT, WJ, ST, VV) - DONE (2026-10-20), see
+   the dedicated section below.
 2. Tune the actual selection cuts in `ModuleTauTau.py` to a real Run-3
-   POG recommendation (tau pt, eta, dz, DeepTau2018v2p5VSjet working
-   point) instead of the current Run-2 placeholders - needs the POG
-   recommendation doc, not a guess.
-3. Confirm the exact `genmatch`/working-point argument convention for
-   the `correctionlib` `.evaluate()` calls (ID SF, VSe/VSmu fake rate,
-   trigger SF, tau energy scale) against an official TauPOG usage
-   example, then fill them in (currently weight=1 placeholders).
+   POG recommendation - DONE (2026-10-21). Applied the kinematic cuts
+   from the supervisor's own CodiMD notes (pT > 20 GeV, |eta| < 2.5,
+   |dz| < 0.2 - dz was already correct) plus WP = DeepTau2018v2p5VSjet
+   Medium (numeric code 5), matching the WP already wired into the
+   correctionlib corrections. Year-gated: Run 2 keeps its old values
+   unchanged. Verified on signal: yield dropped from 29,760/345,524
+   (8.61%, old Run-2 placeholder cuts) to 23,948/345,524 (6.93%, new
+   Run-3 cuts) - a ~19.5% relative decrease, consistent with the WP
+   tightening (VVVLoose -> Medium) dominating over the loosened
+   kinematic acceptance (pt>40->20, eta<2.1->2.5).
+3. Wire up the real `correctionlib` `.evaluate()` calls - DONE
+   (2026-10-21), see "Correction weights wired up" section below.
 4. Properly compute Jet ID for Run 3 from the available energy-fraction
    branches (today's bypass is a stopgap), and wire in the 2024 jet
    veto map (`jetveto()` currently skips 2024 entirely).
@@ -323,6 +324,53 @@ upper pt edge), verified it loads and evaluates correctly
 `ModuleTauTau.py` now points there instead of the CVMFS path, until
 TauPOG fixes the official file (should be reported upstream via the
 GitLab MR `!2` mentioned on the docs page).
+
+### Correction weights wired up - DONE (2026-10-21)
+
+Replaced the `weight=1` placeholders in `ModuleTauTau.py` with real
+`correctionlib` `.evaluate()` calls for all five corrections (tau ID
+SF, VSe/VSmu lepton-fake-rate SF, trigger SF, tau energy scale), for
+Run 3 (year >= 2022) only - Run 2 behavior unchanged.
+
+**What was missing and how it was found:** the open question was the
+exact `genmatch` input convention (the CAT docs page's listed "Values"
+for each correction node looked like grouped categories, not obviously
+the raw NanoAOD value) and the precise argument order per correction.
+Searched for an official TauPOG usage example:
+- A direct fetch of the TauPOG's own `jsonpog-integration` GitLab repo
+  (where an `examples/tauExample.py` is referenced from the README) was
+  blocked by GitLab's bot-protection (Anubis).
+- Instead found and fetched the source of
+  [`Corrections/TAU/tauCorrections.py`](https://nanoaod-base-analysis.readthedocs.io/en/stable/_modules/Corrections/TAU/tauCorrections.html)
+  from the `cms-tau-pog`-adjacent `nanoaod-base-analysis` framework (a
+  real, in-use CMS analysis framework, Run-2 corrections but same
+  correctionlib file family) - confirms `genmatch` is passed as the
+  **raw NanoAOD `Tau_genPartFlav` value, unmodified**, and gives the
+  argument order for VSjet/VSe/VSmu/TES: `eval({pt, dm, genmatch, wp,
+  wp_vse, syst, flag})` for VSjet, `eval({eta, genmatch, wp, syst})`
+  for VSe/VSmu, `eval({pt, eta, dm, genmatch, id, syst})` for TES.
+- Combined this confirmed *convention* with the exact *input signature*
+  of our own Run-3 2024 file's correction nodes (already captured
+  verbatim from the CAT docs page the day before - see the "BLOCKED"
+  section above) to write the final calls.
+
+**Working-point choices made** (documented in-code too): VSjet
+Medium/Tight for the two ID SF variants (Medium matches the Medium WP
+now used in the selection itself, step 2), VSe VVLoose, VSmu Loose -
+all mirroring the Run-2 defaults this module already used, for
+consistency rather than a new independent choice. `flag='dm'` uses the
+decay-mode-binned VSjet SF (recommended for pT <= 140 GeV, which covers
+essentially all taus in this analysis). The ditau trigger SF is applied
+per leg and multiplied (`trigweight = SF(tau1) * SF(tau2)`), the
+standard simplified approach for a ditau trigger.
+
+**Known approximation, not yet resolved:** the SF/fake-rate working
+points passed to `correctionlib` (e.g. VSe='VVLoose') don't necessarily
+exactly match the *actual* cut applied in the selection loop (`idVSe<1`
+is close to a no-op, not a clean "VVLoose" cut) - a minor inconsistency
+inherited from how loose the baseline preselection already was, to be
+refined later once working points across selection and corrections are
+all explicitly re-examined together.
 
 ## References & sources - how each step was built, and why
 
