@@ -389,3 +389,5 @@ documentation" / "Tau ID recommendations for Run-3: 2022-2024"):
   lepton->tau fake rate, and trigger SFs (step 4 of the plan).
 - The exact tau ID working point recommendation (DeepTau vs PNet vs
   UParT) to use for the selection (step 3).
+
+Today's work made the pipeline technically compatible with 2024 (Run-3) data format and runnable end-to-end on signal and all backgrounds, but not yet physically accurate - selection cuts and correction weights still need tuning to real Run-3 values before the output resembles actual 2024 data.
