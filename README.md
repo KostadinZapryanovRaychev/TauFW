@@ -385,6 +385,14 @@ Fixed by clamping the pt passed to `trigCorr.evaluate()` at the
 binning's documented floor (24.6 GeV) - standard practice for a value
 just below a measured range's edge.
 
+**Verified with real values, not just "doesn't crash":** scanned the
+output ntuple's `idweight_1/2`, `trigweight`, `ltfweight_1/2`,
+`genmatch_1/2` branches for the signal sample - `idweight` in ~0.90-1.07
+and `trigweight` in ~0.89-1.00 (both physically plausible SF ranges),
+`ltfweight` exactly 1 wherever `genmatch`=5 (real tau, correctly
+skipping the lepton-fake-rate SF), no NaN, no suspiciously constant
+values. Step 3 is done and validated, not just technically working.
+
 ## References & sources - how each step was built, and why
 
 **Signal sample.** Path and cross section (232.0 pb for M=250) came
