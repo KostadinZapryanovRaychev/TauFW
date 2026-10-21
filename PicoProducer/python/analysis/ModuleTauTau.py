@@ -29,14 +29,22 @@ class ModuleTauTau(ModuleTauPair):
     # DY sample regardless of channel, which crashes since this module never
     # registers the 'weight_mutaufilter*' cutflow bins ModuleMuTau does.
     kwargs.setdefault('domutau', False)
+    # Run-3 TauPOG kinematic recommendation: pT > 20 GeV, |eta| < 2.5, |dz| < 0.2
+    # (dz already enforced below regardless of year); WP = DeepTau2018v2p5VSjet
+    # Medium (numeric code 5: 1=VVVLoose,2=VVLoose,3=VLoose,4=Loose,5=Medium,
+    # 6=Tight,7=VTight,8=VVTight), matching the correctionlib WP wired in above.
+    if kwargs.get('year',0)>=2022:
+      kwargs.setdefault('tauwp', 5)
     super(ModuleTauTau,self).__init__(fname,**kwargs)
     self.out = TreeProducerTauTau(fname,self)
     
     # TRIGGERS
     jsonfile       = os.path.join(datadir,"trigger/tau_triggers_%d.json"%(self.year))
     self.trigger   = TrigObjMatcher(jsonfile,trigger='ditau',isdata=self.isdata)
-    self.tauCutPt  = 40
-    self.tauCutEta = 2.1
+    # Run-3 TauPOG kinematic recommendation: pT > 20 GeV, |eta| < 2.5
+    # (Run 2 keeps the old, tighter analysis-specific values)
+    self.tauCutPt  = 20  if self.year>=2022 else 40
+    self.tauCutEta = 2.5 if self.year>=2022 else 2.1
 
     # DEEPTAU VERSION: Run 3 (2022-2024) NanoAOD only has DeepTau2018v2p5
     # branches (no DeepTau2017v2p1); Run 2 keeps the old version.
