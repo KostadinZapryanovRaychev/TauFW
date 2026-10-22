@@ -120,9 +120,8 @@ quantitative yet.
    kinematic acceptance (pt>40->20, eta<2.1->2.5).
 3. Wire up the real `correctionlib` `.evaluate()` calls - DONE
    (2026-10-21), see "Correction weights wired up" section below.
-4. Properly compute Jet ID for Run 3 from the available energy-fraction
-   branches (today's bypass is a stopgap), and wire in the 2024 jet
-   veto map (`jetveto()` currently skips 2024 entirely).
+4. Properly compute Jet ID for Run 3 and wire in the 2024 jet veto map
+   - DONE (2026-10-22), see "Jet ID and jet veto maps" section below.
 5. Once 2-4 are done, re-run signal + backgrounds, then move to step 6
    (Plotter: build the ditau mass distribution, control regions).
 
@@ -325,6 +324,34 @@ upper pt edge), verified it loads and evaluates correctly
 TauPOG fixes the official file (should be reported upstream via the
 GitLab MR `!2` mentioned on the docs page).
 
+### Jet ID and jet veto maps - DONE (2026-10-22)
+
+**Jet ID.** `Jet_jetId` doesn't exist in NanoAOD from roughly V13 onward
+(confirmed for both our campaigns: NanoV15 signal and JMENanoV14
+backgrounds), so it has to be computed manually from energy-fraction
+branches. Source: the official JME POG TWiki,
+[`CMS/JetID13p6TeV`](https://twiki.cern.ch/twiki/bin/view/CMS/JetID13p6TeV)
+(requires CERN SSO, fetched by the user directly since this tool
+couldn't log in) - specifically its "Jet ID implementation with NanoAOD
+(NanoV15)" section, which gives the exact Tight-ID pseudocode by eta
+region. Our two Run-3 campaigns (NanoV14, NanoV15) both follow this
+same recipe (only the older NanoV12 needs a different, bitmask-based
+fix, which doesn't apply to us). Implemented as a shared
+`passTightJetIdRun3()` helper in `ModuleTauPair.py`, replacing
+yesterday's try/except bypass at both call sites (the main jet
+selection in `fillJetBranches`, and `jetveto()`); Run 2 still uses the
+real `Jet_jetId` branch directly, unchanged.
+
+**Jet veto maps.** `JetVetoMapTool.py` already fully supported era
+`2024` (and even `2025`) - the actual gap was just one line in
+`ModuleTauPair.py`'s `__init__`, which only checked for `'2022'`/
+`'2023'` in the era string before instantiating the tool. Added
+`'2024'` to that check. Also found `jetveto()` was defined but never
+actually *called* anywhere in `ModuleTauTau.py` (only `ModuleMuMu.py`
+used it) - added the call right after ditau pair building, with its
+own new cutflow bin, matching the JME POG's statement that jet veto
+maps are "mandatory for Run 3 analyses."
+
 ### Correction weights wired up - DONE (2026-10-21)
 
 Replaced the `weight=1` placeholders in `ModuleTauTau.py` with real
@@ -478,3 +505,5 @@ current bypass, and wire in the 2024 jet veto map), then re-run
 signal + all backgrounds with the updated cuts/corrections as a
 one-file correctness check (same pattern as yesterday), before moving
 to full batch production and Plotter.
+
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID13p6TeV?extralog=-%20caching%20topic

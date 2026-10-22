@@ -76,6 +76,7 @@ class ModuleTauTau(ModuleTauPair):
     self.out.cutflow.addcut('trig',         "trigger"                     )
     self.out.cutflow.addcut('tau',          "tau"                         )
     self.out.cutflow.addcut('pair',         "ditau pair"                  )
+    self.out.cutflow.addcut('jetveto',      "jet veto maps"               )
     self.out.cutflow.addcut('weight',       "no cut, weighted", 15        )
     self.out.cutflow.addcut('weight_no0PU', "no cut, weighted, PU>0", 16  ) # use for normalization
     
@@ -184,8 +185,13 @@ class ModuleTauTau(ModuleTauPair):
     tau1.tlv   = tau1.p4()
     tau2.tlv   = tau2.p4()
     self.out.cutflow.fill('pair')
-    
-    
+
+
+    # JET VETO MAPS (mandatory for Run 3: https://cms-jerc.web.cern.ch/Recommendations/#jet-veto-maps)
+    if self.jetveto(event): return False
+    self.out.cutflow.fill('jetveto')
+
+
     # VETOS
     extramuon_veto, extraelec_veto, dilepton_veto = getlepvetoes(event,[ ],[ ],[tau1,tau2],self.channel,self.era)
     self.out.extramuon_veto[0], self.out.extraelec_veto[0], self.out.dilepton_veto[0] = getlepvetoes(event,[ ],[ ],[ ],self.channel,self.era)

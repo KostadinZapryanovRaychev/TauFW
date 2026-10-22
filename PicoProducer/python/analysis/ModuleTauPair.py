@@ -17,6 +17,24 @@ __metaclass__ = type # to use super() with subclasses from CommonProducer
 tauSFVersion  = { 2016: '2016Legacy', 2017: '2017ReReco', 2018: '2018ReReco', 2022: '2022ReReco' }
 
 
+def passTightJetIdRun3(jet):
+  """Official JME POG Tight jet ID, computed manually from energy-fraction
+  branches, for NanoAOD V13/V14/V15 where Jet_jetId is no longer stored
+  (or unreliable). Source: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13p6TeV
+  ('Jet ID implementation with NanoAOD (NanoV15)' section), read and
+  confirmed 2026-10-22."""
+  eta = abs(jet.eta)
+  if eta<=2.6:
+    return jet.neHEF<0.99 and jet.neEmEF<0.9 and (jet.chMultiplicity+jet.neMultiplicity>1) \
+           and jet.chHEF>0.01 and jet.chMultiplicity>0
+  elif eta<=2.7:
+    return jet.neHEF<0.90 and jet.neEmEF<0.99
+  elif eta<=3.0:
+    return jet.neHEF<0.99
+  else:
+    return jet.neMultiplicity>=2 and jet.neEmEF<0.4
+
+
 
 class ModuleTauPair(Module):
   """Base class the channels of an analysis with two tau leptons: for mutau, etau, tautau, emu, mumu, ee."""
@@ -90,7 +108,7 @@ class ModuleTauPair(Module):
       #if self.isUL and self.tes==None:
       #  self.tes = 1.0 # placeholder
     self.jetvetoTool = None
-    if '2022' in self.era or '2023' in self.era: # only mandatory for Run 3: 2022, 2023, ... (see https://cms-jerc.web.cern.ch/Recommendations/#jet-veto-maps)
+    if '2022' in self.era or '2023' in self.era or '2024' in self.era: # only mandatory for Run 3: 2022, 2023, 2024, ... (see https://cms-jerc.web.cern.ch/Recommendations/#jet-veto-maps)
       self.jetvetoTool = JetVetoMapTool(era=self.era,verb=self.verbosity) 
     self.deepjet_wp = BTagWPs('DeepJet',era=self.era)
     
@@ -206,7 +224,7 @@ class ModuleTauPair(Module):
     muons = [m for m in Collection(event,'Muon') if m.isPFcand]
     for jet in Collection(event,'Jet'):
       if abs(jet.pt) <= 15: continue
-      if jet.jetId < 2: continue
+      if not passTightJetIdRun3(jet): continue
       if (jet.chEmEF + jet.neEmEF) > 0.90: continue
       if not self.jetvetoTool.applyJetVetoMap(jet.eta, jet.phi): continue
       if any(jet.DeltaR(m)<0.2 for m in muons): continue # overlap
@@ -313,16 +331,13 @@ class ModuleTauPair(Module):
       if abs(jet.eta)>4.7: continue
       if jet.DeltaR(tau1)<0.5: continue
       if jet.DeltaR(tau2)<0.5: continue
-      # TODO: Jet_jetId branch is missing from this private Run-3 NanoAOD
-      # production (confirmed absent via Events->Print("Jet_*") on the
-      # signal file) - bypassing the Tight jet ID cut until the official
-      # JME Jet ID formula is sourced and computed from the available
-      # energy-fraction branches (chHEF, neHEF, chEmEF, neEmEF, muEF,
-      # chMultiplicity, neMultiplicity, nConstituents) instead.
-      try:
-        if jet.jetId<2: continue # Tight
-      except RuntimeError:
-        pass
+      # Jet_jetId is dropped from NanoAOD starting V13-ish (confirmed absent
+      # via Events->Print("Jet_*") on the signal file, NanoV15); compute the
+      # official Tight ID manually from energy-fraction branches instead.
+      # https://twiki.cern.ch/twiki/bin/view/CMS/JetID13p6TeV
+      if self.year>=2022:
+        if not passTightJetIdRun3(jet): continue
+      elif jet.jetId<2: continue # Tight (Run 2: real branch still reliable)
       
       # SAVE JEC VARIATIONS
       if self.dojec:
