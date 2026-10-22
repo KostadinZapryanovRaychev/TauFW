@@ -351,7 +351,7 @@ real `Jet_jetId` branch directly, unchanged.
 `ModuleTauPair.py`'s `__init__`, which only checked for `'2022'`/
 `'2023'` in the era string before instantiating the tool. Added
 `'2024'` to that check. Also found `jetveto()` was defined but never
-actually *called* anywhere in `ModuleTauTau.py` (only `ModuleMuMu.py`
+actually _called_ anywhere in `ModuleTauTau.py` (only `ModuleMuMu.py`
 used it) - added the call right after ditau pair building, with its
 own new cutflow bin, matching the JME POG's statement that jet veto
 maps are "mandatory for Run 3 analyses."
