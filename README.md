@@ -526,7 +526,8 @@ before:
 - [x] TT (`TTto2L2Nu`, `TTtoLNu2Q` 18 pass) - DONE
 - [x] WJ (`WtoLNu-4Jets` + `_1J/_2J/_3J/_4J` 5 pass) - DONE
 - [x] ST (`TWminusto2L2Nu`, `TWminustoLNu2Q`, `TbarWplusto2L2Nu`, `TbarWplustoLNu2Q` 15 pass) - DONE
-- [ ] VV (`WW`, `WZ`, `ZZ`)
+- [x] VV (`WW`, `WZ`, `ZZ` 35 pass) - DONE - all backgrounds verified
+      with steps 2-4 combined.
 
 Once all backgrounds are confirmed, move to full batch production
 (`pico.py submit`, all files - not just one per sample) per the
