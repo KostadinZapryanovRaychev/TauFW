@@ -533,3 +533,38 @@ Once all backgrounds are confirmed, move to full batch production
 (`pico.py submit`, all files - not just one per sample) per the
 earlier decision to finish correctness checks before scaling up
 statistics.
+
+### Full batch production submitted (2026-10-22, end of day)
+
+`pico.py submit -c tautau -y 2024 --dtype mc` submitted cleanly:
+2225 jobs across all 20 MC samples (signal + DY/TT/WJ/ST/VV), 0 held,
+0 removed, all idle at submission. Left running on the grid overnight.
+
+### Plan for next session
+
+1. **Check the batch jobs finished:**
+   ```bash
+   condor_q                                    # expect 0 jobs for you
+   pico.py status -c tautau -y 2024            # expect no MISS/FAIL
+   ```
+   If anything is held/failed, debug the same way as the `pileup`
+   batch issues earlier (check a job log under
+   `output/2024/tautau/<sample>/log/`).
+2. **Merge each sample's per-file outputs into one file:**
+   ```bash
+   pico.py hadd -c tautau -y 2024 --dtype mc --force
+   ```
+3. **Sanity-check the merged output** - e.g. total event counts per
+   sample, a quick look at the ditau mass distribution, confirm
+   correction weights still look sane at full statistics (same kind
+   of `TTree::Scan` check used for the signal correctness check).
+4. **Register and run real 2024 data** (`Tau_Run2024B`-`G`, already in
+   `samples_2024.py` but never run) - needs a golden-JSON luminosity
+   mask, not yet set up; this is genuinely new ground, not just
+   re-running something already proven to work.
+5. **Move to Plotter** (step 6 of the overall plan): build the ditau
+   invariant mass distribution, validate background modeling in
+   control regions (DY, ttbar), define the actual Z'(250) signal
+   region.
+6. Further out: step 7 (cross-check against the Coffea prototype in
+   `Tools/Coffea/NAOD_TAU`), step 8 (Fitter/combine).
