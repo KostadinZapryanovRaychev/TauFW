@@ -122,8 +122,12 @@ quantitative yet.
    (2026-10-21), see "Correction weights wired up" section below.
 4. Properly compute Jet ID for Run 3 and wire in the 2024 jet veto map
    - DONE (2026-10-22), see "Jet ID and jet veto maps" section below.
-5. Once 2-4 are done, re-run signal + backgrounds, then move to step 6
-   (Plotter: build the ditau mass distribution, control regions).
+5. Steps 2-4 all DONE (2026-10-22) - signal re-run and verified with
+   all of them together (yield 21,469/345,524 = 6.21%, see "Jet ID and
+   jet veto maps" section below for the cutflow). Still to do: re-run
+   all backgrounds with the updated cuts/corrections/jetID (one-file
+   correctness check, same pattern as before), THEN move to full batch
+   production and step 6 (Plotter).
 
 ### Running backgrounds through the pipeline - DONE (one-file correctness check)
 
@@ -351,6 +355,11 @@ actually *called* anywhere in `ModuleTauTau.py` (only `ModuleMuMu.py`
 used it) - added the call right after ditau pair building, with its
 own new cutflow bin, matching the JME POG's statement that jet veto
 maps are "mandatory for Run 3 analyses."
+
+**Verified on signal:** ran to completion, no crash, and the new
+"jet veto maps" cutflow bin shows a real, physically plausible effect:
+23,946 -> 21,469 events (-10.3%). Step 4 is done and validated with a
+real number, not just "doesn't crash."
 
 ### Correction weights wired up - DONE (2026-10-21)
 
