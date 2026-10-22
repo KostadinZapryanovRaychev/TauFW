@@ -515,4 +515,20 @@ signal + all backgrounds with the updated cuts/corrections as a
 one-file correctness check (same pattern as yesterday), before moving
 to full batch production and Plotter.
 
-https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID13p6TeV?extralog=-%20caching%20topic
+### SESSION UPDATE 2026-10-22 - re-running backgrounds with steps 2-4 combined
+
+Re-running all backgrounds with the now-complete cuts + corrections +
+jet ID + jet veto maps, same one-file correctness-check pattern as
+before:
+
+- [x] DY (`DYto2L-4Jets_MLL-50` + `_1J/_2J/_3J/_4J`) - DONE, e.g.
+      `_4J`: 162 pass selection -> 131 after jet veto maps.
+- [ ] TT (`TTto2L2Nu`, `TTtoLNu2Q`)
+- [ ] WJ (`WtoLNu-4Jets` + `_1J/_2J/_3J/_4J`)
+- [ ] ST (`TWminusto2L2Nu`, `TWminustoLNu2Q`, `TbarWplusto2L2Nu`, `TbarWplustoLNu2Q`)
+- [ ] VV (`WW`, `WZ`, `ZZ`)
+
+Once all backgrounds are confirmed, move to full batch production
+(`pico.py submit`, all files - not just one per sample) per the
+earlier decision to finish correctness checks before scaling up
+statistics.
