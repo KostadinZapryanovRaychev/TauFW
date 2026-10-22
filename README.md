@@ -523,7 +523,7 @@ before:
 
 - [x] DY (`DYto2L-4Jets_MLL-50` + `_1J/_2J/_3J/_4J`) - DONE, e.g.
       `_4J`: 162 pass selection -> 131 after jet veto maps.
-- [ ] TT (`TTto2L2Nu`, `TTtoLNu2Q`)
+- [x] TT (`TTto2L2Nu`, `TTtoLNu2Q` 18 pass) - DONE
 - [ ] WJ (`WtoLNu-4Jets` + `_1J/_2J/_3J/_4J`)
 - [ ] ST (`TWminusto2L2Nu`, `TWminustoLNu2Q`, `TbarWplusto2L2Nu`, `TbarWplustoLNu2Q`)
 - [ ] VV (`WW`, `WZ`, `ZZ`)
