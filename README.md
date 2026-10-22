@@ -525,7 +525,7 @@ before:
       `_4J`: 162 pass selection -> 131 after jet veto maps.
 - [x] TT (`TTto2L2Nu`, `TTtoLNu2Q` 18 pass) - DONE
 - [x] WJ (`WtoLNu-4Jets` + `_1J/_2J/_3J/_4J` 5 pass) - DONE
-- [ ] ST (`TWminusto2L2Nu`, `TWminustoLNu2Q`, `TbarWplusto2L2Nu`, `TbarWplustoLNu2Q`)
+- [x] ST (`TWminusto2L2Nu`, `TWminustoLNu2Q`, `TbarWplusto2L2Nu`, `TbarWplustoLNu2Q` 15 pass) - DONE
 - [ ] VV (`WW`, `WZ`, `ZZ`)
 
 Once all backgrounds are confirmed, move to full batch production
