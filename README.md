@@ -540,6 +540,24 @@ statistics.
 2225 jobs across all 20 MC samples (signal + DY/TT/WJ/ST/VV), 0 held,
 0 removed, all idle at submission. Left running on the grid overnight.
 
+**Hit the same proxy issue as day one** (`reading from file
+/tmp/x509up_u...: No such file or directory`) - all 2225 jobs failed
+the exact same way, confirmed via job log. Same fix as before: fresh
+`voms-proxy-init`, copy to `/eos/user/k/kraychev/proxy/x509up`, set
+`X509_USER_PROXY`, resubmit with `--force`.
+
+### MILESTONE - full batch production SUCCESS (2026-10-25)
+
+After the proxy fix, resubmitted and all **2225/2225 jobs across all
+20 MC samples (signal + DY x5, TT x2, WJ x5, ST x4, VV x3) report
+SUCCESS** - every chunk has output. This is the first full-statistics
+production of this analysis with the complete Run-3 pipeline (real
+POG selection cuts, real correctionlib weights, proper jet ID, jet
+veto maps), not just a one-file correctness check.
+
+Next: `pico.py hadd -c tautau -y 2024 --dtype mc --force` to merge
+each sample's chunks into one file.
+
 ### Plan for next session
 
 1. **Check the batch jobs finished:**
