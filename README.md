@@ -578,6 +578,14 @@ done
 Confirms each merged sample actually holds its full statistics (not
 just a single file's worth) before using it further.
 
+**Result (2026-10-25):** confirmed. Signal (Z'(250)): 21,469 events
+(matches the earlier single-file correctness check exactly, since
+signal only has 1 file total). Backgrounds now have full statistics -
+DY (all 5 sub-samples) ~32,000, TT ~26,300, ST ~6,000, WJ (all 5)
+~1,000, VV ~3,400 events passing selection, vs. the tens-of-events
+one-file checks from before. Full-statistics production is complete
+and sane.
+
 ### Plan for next session
 
 1. **Check the batch jobs finished:**
