@@ -558,6 +558,26 @@ veto maps), not just a one-file correctness check.
 Next: `pico.py hadd -c tautau -y 2024 --dtype mc --force` to merge
 each sample's chunks into one file.
 
+### Merge DONE (2026-10-25)
+
+All 20 samples merged successfully into one file each, under
+`/eos/user/k/kraychev/analysis/2024/<GROUP>/<Sample>_tautau.root`
+(e.g. `VV/ZZ_tautau.root`, `Zprime/ZprimeToTauTau_M250_tautau.root`).
+These are now full-statistics pico ntuples, ready for sanity-checking
+and for use in Plotter.
+
+### Sanity check: total entries per merged sample
+
+```bash
+cd $CMSSW_BASE/src/TauFW/PicoProducer
+for f in $(find /eos/user/k/kraychev/analysis/2024 -name "*_tautau.root"); do
+  n=$(python3 -c "import ROOT; f=ROOT.TFile('$f'); print(f.Get('tree').GetEntries())" 2>/dev/null)
+  echo "$f : $n"
+done
+```
+Confirms each merged sample actually holds its full statistics (not
+just a single file's worth) before using it further.
+
 ### Plan for next session
 
 1. **Check the batch jobs finished:**
