@@ -615,3 +615,39 @@ and sane.
    region.
 6. Further out: step 7 (cross-check against the Coffea prototype in
    `Tools/Coffea/NAOD_TAU`), step 8 (Fitter/combine).
+
+### BUG found: TauFW framework bug silently dropped all real data events (2026-10-27)
+
+**Symptom:** golden JSON correctly resolved and loaded
+(`Cert_Collisions2024_378981_386951_Golden.json`, confirmed valid: 475
+certified runs), but `pico.py run` on `Tau_Run2024B` gave
+`Pre-select 0 entries` on *every single one* of 53 tested files,
+regardless of run. Confirmed with `dasgoclient -query="lumi file=..."`
+that the tested files genuinely contain lumisections inside the
+certified ranges (e.g. run 378985's file has lumis 57-824, matching
+the JSON's certified `[57, 824]` for that run exactly) - so this was
+not sparse/early-run certification, it was systematic.
+
+**Root cause, traced through NanoAOD-Tools source
+(`PhysicsTools/NanoAODTools/python/postprocessing/framework/
+preskimming.py` and `postprocessor.py`, confirmed identical on lxplus
+and locally):** TauFW's own convention treats `maxevts<=0` (e.g. the
+default `-1`) as "no limit" (used this way already elsewhere in
+`picojob.py`), but `PostProcessor` only treats `maxEntries=None` that
+way. `picojob.py` was passing the literal `-1` straight through as
+`maxEntries=maxevts`. This is harmless for MC, since `preSkim()` (the
+JSON lumimask filter) is only ever invoked when `jsonInput` is set -
+which only happens for `dtype='data'`. For data, `preSkim()` calls
+`tree.Draw('>>elist', cut, "entrylist", -1, firstEntry)` - passing
+`-1` as the entry count literally draws **zero** entries, regardless
+of how much certified data actually exists in the file. This is why
+MC worked perfectly throughout this whole analysis and data silently
+produced nothing the moment we first tried it.
+
+**Fix:** in `picojob.py`, convert `maxevts` to `None` before passing
+to `PostProcessor` whenever it's not a positive number (same
+convention already used one line above it for `nfiles`), instead of
+passing it through raw.
+
+Not yet re-tested - next step is to re-run the same `Tau_Run2024B`
+check and confirm non-zero events appear.

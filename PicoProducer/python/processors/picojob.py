@@ -117,7 +117,15 @@ if not branchsel and hasattr(module,'branchsel') and module.branchsel:
   branchsel = module.branchsel # default keep/drop file for this module (if it exists)
   print(">>> Using default branchsel=%r"%(branchsel))
 # RUN
-p = PostProcessor(outdir,infiles,cut=None,branchsel=branchsel,firstEntry=firstevt,maxEntries=maxevts,
+# NOTE: TauFW's own convention treats maxevts<=0 (e.g. the default -1) as
+# "no limit", but NanoAODTools' PostProcessor only treats maxEntries=None
+# that way - passing -1 literally breaks preSkim()'s JSON lumimask filtering
+# (tree.Draw(...,-1,...) draws zero entries), which only ever runs for real
+# data (jsonInput is only set for dtype='data'). This silently produced
+# "Pre-select 0 entries" for every single data file/run/lumi, regardless of
+# certification, until traced down (2026-10-27).
+maxEntries = maxevts if (maxevts!=None and maxevts>0) else None
+p = PostProcessor(outdir,infiles,cut=None,branchsel=branchsel,firstEntry=firstevt,maxEntries=maxEntries,
                   jsonInput=json,modules=modules,noOut=True,prefetch=prefetch)
 p.run()
 
