@@ -575,6 +575,7 @@ for f in $(find /eos/user/k/kraychev/analysis/2024 -name "*_tautau.root"); do
   echo "$f : $n"
 done
 ```
+
 Confirms each merged sample actually holds its full statistics (not
 just a single file's worth) before using it further.
 
