@@ -667,3 +667,30 @@ Right after the JSON fix, hit a second, unrelated bug:
 data. Never surfaced before since this was the first real-data test
 run in the whole analysis. Fixed by only writing those two branches
 when `self.ismc`.
+
+### MILESTONE - first real CMS 2024 data run successfully (2026-10-27)
+
+After both fixes above, `pico.py run -c tautau -y 2024 -s Tau_Run2024B
+-n 5` completed with no errors:
+```
+2054 certified (golden-JSON-filtered) events across 5 files
+-> trigger: 621 (30.23%)
+-> tau: 77 (3.75%)
+-> ditau pair + jet veto maps: 5 (0.24%)
+-> 5 events written to output
+```
+This is the first time actual CMS 2024 collision data has run through
+this analysis, end to end: golden JSON lumi mask, trigger, tau
+selection, jet veto maps, output written - all working correctly.
+
+### Next steps for data
+
+1. Run the remaining registered data samples (`Tau_Run2024C`-`G`,
+   `Muon0/1_Run2024*`, `EGamma0/1_Run2024*`) the same way as a
+   correctness check, same pattern used for MC.
+2. Once confirmed, full batch production for data (`pico.py submit`,
+   all files, not just a few) - same workflow as the MC production.
+3. Move into Plotter: compare data to the MC background sum in
+   control regions, normalize MC to the actual 2024 integrated
+   luminosity, build the ditau mass distribution, define the signal
+   region.
