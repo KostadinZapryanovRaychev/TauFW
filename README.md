@@ -649,5 +649,21 @@ to `PostProcessor` whenever it's not a positive number (same
 convention already used one line above it for `nfiles`), instead of
 passing it through raw.
 
-Not yet re-tested - next step is to re-run the same `Tau_Run2024B`
-check and confirm non-zero events appear.
+**Verified fixed:** re-ran `Tau_Run2024B` and got real events - run
+378985's file: `Pre-select 1591 entries out of 1593 (99.87%)`, matching
+exactly the dasgoclient-confirmed lumisections for that run/file.
+Run 378981 still correctly gives 0 (right at the start of
+certification, as expected). Real 2024 data finally flows through the
+golden JSON filter correctly.
+
+### BUG found: data-only AttributeError crash (2026-10-27, same test run)
+
+Right after the JSON fix, hit a second, unrelated bug:
+`AttributeError: 'TreeProducerTauTau' object has no attribute
+'jpt_genmatch_1'`. Cause: `TreeProducerTauTau.py` only registers the
+`jpt_genmatch_1`/`_2` output branches when `self.module.ismc` is True
+(gen-jet matching only makes sense for MC), but `ModuleTauTau.py`'s
+`analyze()` tried to write to them unconditionally for both MC and
+data. Never surfaced before since this was the first real-data test
+run in the whole analysis. Fixed by only writing those two branches
+when `self.ismc`.

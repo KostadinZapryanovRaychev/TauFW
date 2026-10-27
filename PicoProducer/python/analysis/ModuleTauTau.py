@@ -290,8 +290,16 @@ class ModuleTauTau(ModuleTauPair):
     
     # JETS
     jets, met, njets_vars, met_vars = self.fillJetBranches(event,tau1,tau2)
-    self.out.jpt_match_1[0], self.out.jpt_genmatch_1[0] = matchtaujet(event,tau1,self.ismc)
-    self.out.jpt_match_2[0], self.out.jpt_genmatch_2[0] = matchtaujet(event,tau2,self.ismc)
+    # jpt_genmatch_1/2 branches only exist for MC (TreeProducerTauTau.py,
+    # guarded by self.module.ismc) - writing to them for data crashed with
+    # AttributeError (found 2026-10-27, first real-data test run).
+    jpt_match_1, jpt_genmatch_1 = matchtaujet(event,tau1,self.ismc)
+    jpt_match_2, jpt_genmatch_2 = matchtaujet(event,tau2,self.ismc)
+    self.out.jpt_match_1[0] = jpt_match_1
+    self.out.jpt_match_2[0] = jpt_match_2
+    if self.ismc:
+      self.out.jpt_genmatch_1[0] = jpt_genmatch_1
+      self.out.jpt_genmatch_2[0] = jpt_genmatch_2
     
     
     # WEIGHTS
