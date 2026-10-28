@@ -683,12 +683,28 @@ This is the first time actual CMS 2024 collision data has run through
 this analysis, end to end: golden JSON lumi mask, trigger, tau
 selection, jet veto maps, output written - all working correctly.
 
+### `Tau_Run2024C-G` correctness check - DONE (2026-10-27)
+
+`pico.py run -c tautau -y 2024 -s Tau_Run2024C Tau_Run2024D
+Tau_Run2024E Tau_Run2024F Tau_Run2024G -n 5` completed successfully
+across all 5 remaining Tau-primary-dataset eras:
+```
+1,005,021 total events processed
+-> trigger: 335,546 (33.39%)
+-> tau: 36,840 (3.67%)
+-> ditau pair: 1,778 (0.18%)
+-> jet veto maps: 1,570 (0.16%) -> stored
+```
+Combined with `Tau_Run2024B` tested earlier, all 7 Tau-primary-dataset
+data eras (B through G) are confirmed working with the fixed pipeline.
+
 ### Next steps for data
 
-1. Run the remaining registered data samples (`Tau_Run2024C`-`G`,
-   `Muon0/1_Run2024*`, `EGamma0/1_Run2024*`) the same way as a
-   correctness check, same pattern used for MC.
-2. Once confirmed, full batch production for data (`pico.py submit`,
+1. `Muon0/1_Run2024*` and `EGamma0/1_Run2024*` (other primary
+   datasets, used for the mutau/etau channels, not directly needed for
+   tautau - lower priority, can be skipped for now and revisited if
+   those channels are needed later).
+2. Full batch production for `Tau_Run2024*` data (`pico.py submit`,
    all files, not just a few) - same workflow as the MC production.
 3. Move into Plotter: compare data to the MC background sum in
    control regions, normalize MC to the actual 2024 integrated
