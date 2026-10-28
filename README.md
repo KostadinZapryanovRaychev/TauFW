@@ -704,9 +704,16 @@ data eras (B through G) are confirmed working with the fixed pipeline.
    datasets, used for the mutau/etau channels, not directly needed for
    tautau - lower priority, can be skipped for now and revisited if
    those channels are needed later).
-2. Full batch production for `Tau_Run2024*` data (`pico.py submit`,
-   all files, not just a few) - same workflow as the MC production.
-3. Move into Plotter: compare data to the MC background sum in
+2. Full batch production for `Tau_Run2024*` data - SUBMITTED
+   (2026-10-28). `pico.py submit -c tautau -y 2024 --dtype data -s
+   Tau_Run2024*` submitted cleanly across all 7 eras: B=53, C=191,
+   D=216, E=282, F=759, G=1046 jobs - **2547 jobs total**. Check with
+   `condor_q` / `pico.py status -c tautau -y 2024` once done (watch
+   for the recurring proxy issue - may need the same fix as the MC
+   batch production if jobs come back MISS).
+3. Once confirmed, merge: `pico.py hadd -c tautau -y 2024 --dtype data
+   --force`.
+4. Move into Plotter: compare data to the MC background sum in
    control regions, normalize MC to the actual 2024 integrated
    luminosity, build the ditau mass distribution, define the signal
    region.
