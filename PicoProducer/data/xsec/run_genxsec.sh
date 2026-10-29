@@ -32,4 +32,9 @@ echo ">>> Using $NFILES file(s):"
 echo "$FILES"
 echo ">>> Running cmsRun..."
 
-cmsRun genxsec_cfg.py dataset="$DATASET" $INPUTFILES
+mkdir -p logs
+SAMPLENAME=$(basename "$DATASET" | cut -d/ -f1)
+LOGFILE="logs/${SAMPLENAME}_$(date +%Y%m%d_%H%M%S).log"
+
+cmsRun genxsec_cfg.py dataset="$DATASET" $INPUTFILES 2>&1 | tee "$LOGFILE"
+echo ">>> Full log saved to: $LOGFILE"
