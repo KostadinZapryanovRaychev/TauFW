@@ -1,0 +1,20 @@
+##
+## Config file for default TES fit in mutau channel
+## contact: saskia.falke@cern.ch
+##
+
+# NOTE: In general, the main information (channel, baselineCuts, etc.) should be given.
+#       More specific sub-options (like weight replacement for systematic uncertainties) are optional
+#       These are not needed for plotting only
+
+
+channel: tautau
+
+# NOTE (2026-10-29): corrected from the original copy-pasted mutau baseline,
+# which referenced branches that don't exist in our tree (idMedium_1/2, m_ll).
+# idDeepTau2017v2p1VSjet_1/2 holds DeepTau2018v2p5 values for year>=2022 (our
+# Run-3 branch-reuse convention, see ModuleTauTau.py); WP code 5 = Medium,
+# matching the selection WP already used in PicoProducer. Dropped iso_1/2<0.15
+# (fractional muon-style isolation, not meaningful for tau rawIso) since
+# DeepTau VSjet already combines isolation into the ID.
+baselineCuts: "q_1*q_2<0 && idDeepTau2017v2p1VSjet_1>=5 && idDeepTau2017v2p1VSjet_2>=5 && !extraelec_veto && !extramuon_veto && m_vis>20 && metfilter"
