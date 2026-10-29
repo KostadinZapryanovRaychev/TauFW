@@ -737,8 +737,24 @@ full-statistics MC (signal + all 5 backgrounds, see earlier
 milestone), both sides of the analysis - real data and simulation -
 are now ready for direct comparison.
 
-### Next: move into Plotter
+### Starting Plotter (2026-10-29)
 
-Compare data to the MC background sum in control regions, normalize
-MC to the actual 2024 integrated luminosity, build the ditau mass
-distribution, define the signal region.
+**Fixed:** `Plotter/config/setup_tautau.yml`'s baseline selection was
+broken, copy-pasted from a mutau config (file header literally says
+"TES fit in mutau channel") - referenced `idMedium_1/2` and `m_ll`,
+neither of which exist in our output tree. Corrected to use
+`idDeepTau2017v2p1VSjet_1/2>=5` (holds DeepTau2018v2p5 Medium WP for
+year>=2022, our Run-3 branch-reuse convention) and `m_vis` (confirmed
+real branch, inherited from `TreeProducerTauPair`), dropped the
+fractional `iso_1/2<0.15` cut (not meaningful for tau rawIso, DeepTau
+already combines isolation into the ID).
+
+**BLOCKED:** `Plotter/config/samples.py` has no era branch for `2024`
+at all (only `'UL'`, `'2016'`, `'2017'`, `'2018'` recognized - else
+raises `IOError`), and its existing sample tables use old Run-2 sample
+names (`DYJetsToLL_M-50`) that don't match our actual Run-3 names
+(`DYto2L-4Jets_MLL-50`). Need a new era-2024 branch with our real
+sample names and cross sections. We have the signal's XS (232.0 pb)
+but not the backgrounds'. XSDB (`xsecdb-xsdb-official.app.cern.ch`)
+requires CERN SSO, same as the JetID TWiki - user is looking these up
+directly. Paused here until those values are available.
