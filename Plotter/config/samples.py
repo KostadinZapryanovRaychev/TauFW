@@ -207,8 +207,11 @@ def getsampleset(channel,era,**kwargs):
   # STITCH
   # Note: titles are set via STYLE.sample_titles
   if era=='2024':
-    sampleset.stitch("WtoLNu-4Jets*",        incl='WJ',  name='WJ'     ) # W + jets
-    sampleset.stitch("DYto2L-4Jets_MLL-50*", incl='DYJ', name="DY_M50")
+    # NOTE: for 2022/2023/2024 eras, stitch() matches the inclusive sample by exact
+    # sample name (not group name) -- see Plotter/python/sample/utils.py:414-417,
+    # and the working example in Plotter/config/samples_v12.py.
+    sampleset.stitch("WtoLNu-4Jets*",        incl='WtoLNu-4Jets',        name='WJ'     ) # W + jets
+    sampleset.stitch("DYto2L-4Jets_MLL-50*", incl='DYto2L-4Jets_MLL-50', name="DY_M50" )
   else:
     sampleset.stitch("W*Jets",    incl='WJ',  name='WJ'     ) # W + jets
     sampleset.stitch("DY*J*M-50", incl='DYJ', name="DY_M50")
