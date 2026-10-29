@@ -126,6 +126,38 @@ def getsampleset(channel,era,**kwargs):
       ( 'ST', "ST_tW_top",             "ST tW",                 35.85 ),
       ( 'ST', "ST_tW_antitop",         "ST atW",                35.85 ),
     ]
+  elif era=='2024': # Run 3, 2024 data-taking
+    # XSEC: computed on lxplus via GenXsecAnalyzer over MiniAODSIM (5 files/sample), 2026-10-29.
+    # See PicoProducer/data/xsec/ (genxsec_cfg.py, run_genxsec.sh, logs/) and README.md
+    # "References & sources" section for the full method and raw logs.
+    # TT and ST (tW) samples are decay-mode-split at the Pythia8 level, not at the LHE
+    # generator-filter level, so GenXsecAnalyzer reports the same *inclusive* cross section
+    # for every decay-mode sample from the same gridpack. These were rescaled by the
+    # standard PDG W branching fractions (BR(W->lnu)=0.3259, BR(W->had)=0.6741):
+    #   BR(2l2nu) = 0.3259^2        = 0.1062
+    #   BR(lnu2q) = 2*0.3259*0.6741 = 0.4392
+    expsamples = [ # table of MC samples to be converted to Sample objects
+      # GROUP NAME                          TITLE                 XSEC      EXTRA OPTIONS
+      ( 'DY', "DYto2L-4Jets_MLL-50",        "Drell-Yan 50",       5435.0, {'extraweight': dyweight} ), # apply k-factor in stitching
+      ( 'DY', "DYto2L-4Jets_MLL-50_1J",     "Drell-Yan 1J 50",     975.4, {'extraweight': dyweight} ),
+      ( 'DY', "DYto2L-4Jets_MLL-50_2J",     "Drell-Yan 2J 50",     312.7, {'extraweight': dyweight} ),
+      ( 'DY', "DYto2L-4Jets_MLL-50_3J",     "Drell-Yan 3J 50",      92.77, {'extraweight': dyweight} ),
+      ( 'DY', "DYto2L-4Jets_MLL-50_4J",     "Drell-Yan 4J 50",      45.56, {'extraweight': dyweight} ),
+      ( 'WJ', "WtoLNu-4Jets",               "W + jets",          55370.0  ),
+      ( 'WJ', "WtoLNu-4Jets_1J",            "W + 1J",              9170.0  ),
+      ( 'WJ', "WtoLNu-4Jets_2J",            "W + 2J",              2933.0  ),
+      ( 'WJ', "WtoLNu-4Jets_3J",            "W + 3J",                866.5 ),
+      ( 'WJ', "WtoLNu-4Jets_4J",            "W + 4J",                417.2 ),
+      ( 'VV', "WW",                         "WW",                    79.92 ),
+      ( 'VV', "WZ",                         "WZ",                    29.16 ),
+      ( 'VV', "ZZ",                         "ZZ",                    12.86 ),
+      ( 'TT', "TTto2L2Nu",                  "ttbar 2l2#nu",          80.9, {'extraweight': ttweight} ), # 762.1*0.1062
+      ( 'TT', "TTtoLNu2Q",                  "ttbar semileptonic",   334.8, {'extraweight': ttweight} ), # 762.1*0.4392
+      ( 'ST', "TWminustoLNu2Q",             "ST tW semileptonic",    15.80 ), # 35.99*0.4392
+      ( 'ST', "TWminusto2L2Nu",             "ST tW 2l2#nu",           3.82 ), # 35.99*0.1062
+      ( 'ST', "TbarWplustoLNu2Q",           "ST atW semileptonic",   15.84 ), # 36.05*0.4392
+      ( 'ST', "TbarWplusto2L2Nu",           "ST atW 2l2#nu",          3.83 ), # 36.05*0.1062
+    ]
   else:
     LOG.throw(IOError,"Did not recognize era %r!"%(era))
 
@@ -174,8 +206,11 @@ def getsampleset(channel,era,**kwargs):
   
   # STITCH
   # Note: titles are set via STYLE.sample_titles
-  sampleset.stitch("W*Jets",    incl='WJ',  name='WJ'     ) # W + jets
-  if "v2p5" in era:
+  if era=='2024':
+    sampleset.stitch("WtoLNu-4Jets*",        incl='WJ',  name='WJ'     ) # W + jets
+    sampleset.stitch("DYto2L-4Jets_MLL-50*", incl='DYJ', name="DY_M50")
+  else:
+    sampleset.stitch("W*Jets",    incl='WJ',  name='WJ'     ) # W + jets
     sampleset.stitch("DY*J*M-50", incl='DYJ', name="DY_M50")
     ## The following skimming efficiencies should be removed when running on nTuples with corrected cutflow content!!!!
     #                 eff_nanoAOD_DYll=0.47435726,
@@ -190,8 +225,6 @@ def getsampleset(channel,era,**kwargs):
     #                 eff_nanoAOD_mutau_2j=0.867779,
     #                 eff_nanoAOD_mutau_3j=0.889908,
     #                 eff_nanoAOD_mutau_4j=0.922111) # Drell-Yan, M > 50 GeV
-  else:
-    sampleset.stitch("DY*J*M-50", incl='DYJ', name="DY_M50")
   #sampleset.stitch("DY*J*M-10to50", incl='DYJ', name="DY_M10to50" )
   
   # JOIN
