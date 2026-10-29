@@ -704,16 +704,41 @@ data eras (B through G) are confirmed working with the fixed pipeline.
    datasets, used for the mutau/etau channels, not directly needed for
    tautau - lower priority, can be skipped for now and revisited if
    those channels are needed later).
-2. Full batch production for `Tau_Run2024*` data - SUBMITTED
-   (2026-10-28). `pico.py submit -c tautau -y 2024 --dtype data -s
-   Tau_Run2024*` submitted cleanly across all 7 eras: B=53, C=191,
-   D=216, E=282, F=759, G=1046 jobs - **2547 jobs total**. Check with
-   `condor_q` / `pico.py status -c tautau -y 2024` once done (watch
-   for the recurring proxy issue - may need the same fix as the MC
-   batch production if jobs come back MISS).
-3. Once confirmed, merge: `pico.py hadd -c tautau -y 2024 --dtype data
-   --force`.
-4. Move into Plotter: compare data to the MC background sum in
-   control regions, normalize MC to the actual 2024 integrated
-   luminosity, build the ditau mass distribution, define the signal
-   region.
+2. Full batch production for `Tau_Run2024*` data - DONE (2026-10-29).
+   `pico.py submit -c tautau -y 2024 --dtype data -s Tau_Run2024*`
+   submitted 2547 jobs across all 7 eras (B=53, C=191, D=216, E=282,
+   F=759, G=1046) - no proxy issue this time, all ran cleanly
+   overnight. `pico.py status` confirms **all 7 eras SUCCESS**
+   (53/53, 191/191, 216/216, 282/282, 759/759, 1046/1046). The many
+   "Cutflow has nevts=0.0" warnings per sample are expected/harmless -
+   individual job chunks whose specific file happened to have zero
+   certified lumisections, same understood behavior as the earlier
+   correctness check.
+3. Merge: `pico.py hadd -c tautau -y 2024 --dtype data --force` - DONE.
+   All 7 eras merged into
+   `/eos/user/k/kraychev/analysis/2024/Data/Tau_Run2024<era>_tautau.root`.
+
+### MILESTONE - full 2024 data production complete (2026-10-29)
+
+Verified total entries per merged data file:
+```
+Tau_Run2024B: 1,338
+Tau_Run2024C: 73,928
+Tau_Run2024D: 82,121
+Tau_Run2024E: 128,963
+Tau_Run2024F: 346,781
+Tau_Run2024G: 483,720
+Total: 1,116,851 events
+```
+Over 1.1 million real CMS 2024 collision events now fully processed
+through the complete τh τh pipeline (golden JSON lumi mask, trigger
+matching, tau selection, jet veto maps). Combined with the
+full-statistics MC (signal + all 5 backgrounds, see earlier
+milestone), both sides of the analysis - real data and simulation -
+are now ready for direct comparison.
+
+### Next: move into Plotter
+
+Compare data to the MC background sum in control regions, normalize
+MC to the actual 2024 integrated luminosity, build the ditau mass
+distribution, define the signal region.
