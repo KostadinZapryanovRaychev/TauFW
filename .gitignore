@@ -18,3 +18,5 @@ Plotter/plots
 Fitter/*/*plots*
 Fitter/*/log
 Fitter/Zpt/weights
+plots_local/
+*.tar
