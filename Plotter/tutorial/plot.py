@@ -48,6 +48,8 @@ def plot(sampleset,setup,parallel=True,tag="",extratext="",outdir="plots",era=""
     Var("jeta_1", 53, -5.4,  5.2, ymargin=1.6,pos='T',ncols=2,veto=[r"njets\w*==0"]),
     Var("jeta_2", 53, -5.4,  5.2, ymargin=1.6,pos='T',ncols=2,veto=[r"njets\w*==0"]),
     Var('npv',    40,  0,  80),
+    Var('npv_good', "Number of good primary vertices", 40,  0,  80),
+    Var('puweight', "Pileup weight", 50,  0,   3, data=False, logy=True),
     Var('njets',   8,  0,   8),
     Var('nbtag', "Number of b jets (Medium, pt > 30 GeV)", 8, 0, 8),
     Var('met',    50,  0, 150,cbins={"nbtag\w*>":(50,0,250)}),

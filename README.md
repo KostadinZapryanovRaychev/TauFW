@@ -621,7 +621,7 @@ and sane.
 **Symptom:** golden JSON correctly resolved and loaded
 (`Cert_Collisions2024_378981_386951_Golden.json`, confirmed valid: 475
 certified runs), but `pico.py run` on `Tau_Run2024B` gave
-`Pre-select 0 entries` on *every single one* of 53 tested files,
+`Pre-select 0 entries` on _every single one_ of 53 tested files,
 regardless of run. Confirmed with `dasgoclient -query="lumi file=..."`
 that the tested files genuinely contain lumisections inside the
 certified ranges (e.g. run 378985's file has lumis 57-824, matching
@@ -672,6 +672,7 @@ when `self.ismc`.
 
 After both fixes above, `pico.py run -c tautau -y 2024 -s Tau_Run2024B
 -n 5` completed with no errors:
+
 ```
 2054 certified (golden-JSON-filtered) events across 5 files
 -> trigger: 621 (30.23%)
@@ -679,6 +680,7 @@ After both fixes above, `pico.py run -c tautau -y 2024 -s Tau_Run2024B
 -> ditau pair + jet veto maps: 5 (0.24%)
 -> 5 events written to output
 ```
+
 This is the first time actual CMS 2024 collision data has run through
 this analysis, end to end: golden JSON lumi mask, trigger, tau
 selection, jet veto maps, output written - all working correctly.
@@ -688,6 +690,7 @@ selection, jet veto maps, output written - all working correctly.
 `pico.py run -c tautau -y 2024 -s Tau_Run2024C Tau_Run2024D
 Tau_Run2024E Tau_Run2024F Tau_Run2024G -n 5` completed successfully
 across all 5 remaining Tau-primary-dataset eras:
+
 ```
 1,005,021 total events processed
 -> trigger: 335,546 (33.39%)
@@ -695,6 +698,7 @@ across all 5 remaining Tau-primary-dataset eras:
 -> ditau pair: 1,778 (0.18%)
 -> jet veto maps: 1,570 (0.16%) -> stored
 ```
+
 Combined with `Tau_Run2024B` tested earlier, all 7 Tau-primary-dataset
 data eras (B through G) are confirmed working with the fixed pipeline.
 
@@ -721,6 +725,7 @@ data eras (B through G) are confirmed working with the fixed pipeline.
 ### MILESTONE - full 2024 data production complete (2026-10-29)
 
 Verified total entries per merged data file:
+
 ```
 Tau_Run2024B: 1,338
 Tau_Run2024C: 73,928
@@ -730,6 +735,7 @@ Tau_Run2024F: 346,781
 Tau_Run2024G: 483,720
 Total: 1,116,851 events
 ```
+
 Over 1.1 million real CMS 2024 collision events now fully processed
 through the complete τh τh pipeline (golden JSON lumi mask, trigger
 matching, tau selection, jet veto maps). Combined with the
