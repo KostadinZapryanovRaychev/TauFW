@@ -41,8 +41,13 @@ linecolors = [ kRed+1, kAzure+5, kGreen+2, kOrange+1, kMagenta-4, kYellow+1,
                kRed-9, kAzure-4, kGreen-2, kOrange+6, kMagenta+3, kYellow+2, ]
 
 
-def getMCProfile(outfname,samples,channel,era,tag=""):
-  """Get pileup profile in MC by adding Pileup_nTrueInt histograms from a given list of samples."""
+def getMCProfile(outfname,samples,channel,era,tag="",weights=None):
+  """Get pileup profile in MC by adding Pileup_nTrueInt histograms from a given list of samples.
+  By default each sample's raw (unweighted) histogram is summed as-is, so the combined profile
+  is dominated by whichever sample has the most raw generated/stored events, NOT by how much it
+  actually contributes to the final analysis-weighted MC stack. Pass `weights` (dict: sample name
+  -> xsec/sumweights, i.e. the same relative normalization used for the analysis stack) to scale
+  each sample's histogram before summing, so the combined profile matches the real MC mixture."""
   print('>>> getMCProfile("%s")'%(outfname))
   nprofiles = 0
   histname  = 'pileup'
@@ -56,6 +61,10 @@ def getMCProfile(outfname,samples,channel,era,tag=""):
     if not hist:
       print(">>> Did not find %s:%r..."%(infname,histname))
       continue
+    if weights:
+      scale = weights.get(sample,None)
+      assert scale is not None, "getMCProfile: no weight given for sample %r!"%(sample)
+      hist.Scale(scale)
     if tothist==None:
       tothist = hist.Clone('pileup')
       tothist.SetTitle('pileup')
