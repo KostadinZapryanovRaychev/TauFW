@@ -56,7 +56,15 @@ for group, name, xsec in samples_xsec:
   tf = TFile.Open(ttfile)
   cutflow = tf.Get("cutflow")
   assert cutflow, f"No 'cutflow' histogram in {ttfile}!"
-  sumw = cutflow.GetBinContent(cutflow.GetXaxis().FindBin("weight"))
+  # NOTE: bin labels were set via SetBinLabel (not Fill(label,...)), so the axis is not
+  # "alphanumeric" and TAxis::FindBin(str) silently fails (returns underflow bin 0).
+  # Scan bin labels directly instead.
+  sumw = None
+  for b in range(1, cutflow.GetNbinsX()+1):
+    if cutflow.GetXaxis().GetBinLabel(b) == "weight":
+      sumw = cutflow.GetBinContent(b)
+      break
+  assert sumw is not None, f"No 'weight' bin found in cutflow of {ttfile}!"
   tf.Close()
   assert sumw > 0, f"sumweights <= 0 for {name} ({sumw})!"
   scale = xsec / sumw
